@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\ParkirController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\BookingController;
 
-Route::get('/', [BookingController::class, 'index'])->name('dashboard');
-Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+// Sementara, sampai halaman K07 dibuat.
+Route::view('/', 'welcome');
+
+Route::post('/checkin', [ParkirController::class, 'checkin'])->name('checkin');
+Route::post('/checkout/{id}', [ParkirController::class, 'checkout'])->whereNumber('id')->name('checkout');
