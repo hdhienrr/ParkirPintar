@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=25">
+    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=26">
     @stack('kepala')
 </head>
 <body class="@yield('kelas-body')">
@@ -21,14 +21,24 @@
         @php($rute = request()->route()?->getName() ?? '')
         @php($jenisAktif = request()->route('jenis'))
         <a href="{{ route('beranda') }}" @class(['aktif' => $rute === 'beranda'])>Beranda</a>
-        <a href="{{ route('parkir', 'mobil') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'mobil'])>Parkir Mobil</a>
-        <a href="{{ route('parkir', 'motor') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'motor'])>Parkir Motor</a>
-        <a href="{{ route('areas.index') }}" @class(['aktif' => str_starts_with($rute, 'areas.')])>Area</a>
-        <a href="{{ route('reports.occupancy') }}" @class(['aktif' => str_starts_with($rute, 'reports.')])>Laporan</a>
+        @can('admin')
+            <a href="{{ route('parkir', 'mobil') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'mobil'])>Parkir Mobil</a>
+            <a href="{{ route('parkir', 'motor') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'motor'])>Parkir Motor</a>
+            <a href="{{ route('areas.index') }}" @class(['aktif' => str_starts_with($rute, 'areas.')])>Area</a>
+            <a href="{{ route('reports.occupancy') }}" @class(['aktif' => str_starts_with($rute, 'reports.')])>Laporan</a>
+        @endcan
     </nav>
     <div class="topbar-kanan">
         <span class="jam" id="jam" aria-label="Waktu sekarang">{{ now()->format('d M Y, H:i') }}</span>
-        <a href="{{ route('parkir', 'mobil') }}" class="tombol tombol-terang tombol-topbar">Mulai check-in</a>
+        @auth
+            <span class="nama-akun">{{ auth()->user()->name }}</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="tombol tombol-kecil">Keluar</button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" @class(['tombol', 'tombol-kecil', 'tombol-utama' => $rute !== 'login'])>Masuk</a>
+        @endauth
     </div>
 </header>
 

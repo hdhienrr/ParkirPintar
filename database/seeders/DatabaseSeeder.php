@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TarifSeeder::class,
             AreaParkirSeeder::class,
+            AdminSeeder::class,
         ]);
     }
 }

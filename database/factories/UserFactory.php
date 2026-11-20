@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Peran;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +32,11 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function admin(): static
+    {
+        return $this->afterMaking(fn (User $user) => $user->role = Peran::Admin);
     }
 
     /**

@@ -31,4 +31,19 @@ return [
         'menit_contoh_biaya' => 150,
     ],
 
+    // Akun admin pertama, dibuat oleh AdminSeeder. Nilainya hanya dari .env.
+    'admin' => [
+        'nama' => env('ADMIN_NAME', 'Admin ParkirPintar'),
+        'email' => env('ADMIN_EMAIL'),
+        'password' => env('ADMIN_PASSWORD'),
+    ],
+
+    'akun' => [
+        'password_min' => 8,
+
+        // Batas tebak password: percobaan gagal per email dan IP sebelum dikunci sementara.
+        'login_maks_percobaan' => 5,
+        'login_kunci_detik' => 60,
+    ],
+
 ];

@@ -106,10 +106,16 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 .topbar-kanan { display: flex; align-items: center; gap: 14px; }
 .jam { color: var(--samar); font-size: 13px; font-variant-numeric: tabular-nums; }
 
-/* Landing: navbar putih biasa (menempel di atas); jam diganti tombol check-in. */
+/* Landing: jam disembunyikan supaya navbar lebih lega. */
 .beranda .jam { display: none; }
-.topbar .tombol-topbar { display: none; }
-.beranda .topbar .tombol-topbar { display: inline-flex; padding: 10px 20px; background: var(--utama); border-color: var(--utama); color: #fff; }
+
+.nama-akun { max-width: 160px; overflow: hidden; color: var(--teks); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-kanan form { margin: 0; }
+
+/* Halaman masuk dan daftar */
+.kartu-akun { max-width: 440px; }
+.kartu-akun-catatan { margin: 18px 0 0; color: var(--redup); font-size: 13px; }
+.kartu-akun-catatan a { color: var(--aksen); font-weight: 600; }
 
 /* ---------- Kerangka halaman ---------- */
 .konten { max-width: 1400px; margin: 0 auto; padding: 32px; }

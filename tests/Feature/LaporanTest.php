@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\SlotParkir;
+use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,6 +15,13 @@ class LaporanTest extends TestCase
     protected $seed = true;
 
     protected $seeder = DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->admin()->create());
+    }
 
     private function parkir(string $kode, string $plat, string $jenis, int $menit): void
     {

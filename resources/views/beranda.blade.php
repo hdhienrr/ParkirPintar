@@ -12,8 +12,15 @@
             <h1>Parkir lebih cepat, <span class="hero-sorot">tanpa cari-cari slot</span></h1>
             <p class="hero-deskripsi">Pilih slot langsung dari denah tiap lantai, catat plat nomor, dan biaya dihitung otomatis saat kendaraan keluar.</p>
             <div class="hero-aksi">
-                <a href="{{ route('parkir', 'mobil') }}" class="tombol tombol-utama">Check-in mobil</a>
-                <a href="{{ route('parkir', 'motor') }}" class="tombol">Check-in motor</a>
+                @can('admin')
+                    <a href="{{ route('parkir', 'mobil') }}" class="tombol tombol-utama">Check-in mobil</a>
+                    <a href="{{ route('parkir', 'motor') }}" class="tombol">Check-in motor</a>
+                @elseauth
+                    <a href="#judul-area" class="tombol tombol-utama">Lihat ketersediaan</a>
+                @else
+                    <a href="{{ route('register') }}" class="tombol tombol-utama">Daftar sekarang</a>
+                    <a href="{{ route('login') }}" class="tombol">Masuk</a>
+                @endcan
             </div>
         </div>
         <div class="hero-foto" role="img" aria-label="Lantai parkir gedung dengan pilar beton"></div>

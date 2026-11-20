@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\AreaParkir;
 use App\Models\SlotParkir;
+use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,6 +16,13 @@ class AreaTest extends TestCase
     protected $seed = true;
 
     protected $seeder = DatabaseSeeder::class;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->actingAs(User::factory()->admin()->create());
+    }
 
     public function test_daftar_area_berisi_ringkasan_slot(): void
     {
