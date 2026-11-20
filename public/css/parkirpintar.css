@@ -103,7 +103,13 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 .nav a:hover { color: var(--teks); background: var(--panel-2); }
 .nav a.aktif { color: #fff; background: var(--gelap); }
 
-.topbar-kanan { display: flex; align-items: center; gap: 14px; }
+.topbar-kanan { display: flex; flex-shrink: 0; align-items: center; gap: 14px; }
+
+/* Menu admin cukup banyak: di layar sempit menu digeser ke samping, bukan terlipat. */
+.brand { flex-shrink: 0; }
+.nav { min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { flex-shrink: 0; white-space: nowrap; }
 .jam { color: var(--samar); font-size: 13px; font-variant-numeric: tabular-nums; }
 
 /* Landing: jam disembunyikan supaya navbar lebih lega. */
@@ -498,6 +504,13 @@ tfoot td { border-top: 1px solid var(--garis); border-bottom: 0; font-weight: 70
 .struk-total .besar { font-size: 18px; }
 .aksi-cetak form { margin: 0; }
 
+/* Halaman admin: daftar booking dan kendaraan di dalam */
+.filter-baris { align-items: flex-end; gap: 8px; }
+.aksi-baris { display: inline-flex; gap: 6px; align-items: center; }
+.aksi-baris form, td form { display: inline; margin: 0; }
+.label-merah { display: inline-block; margin-left: 6px; padding: 3px 8px; border-radius: 999px; background: var(--merah); color: #fff; font-size: 11px; font-weight: 700; }
+tbody tr.baris-merah td { background: var(--merah-bg); }
+
 /* Daftar booking hari ini di formulir check-in petugas */
 .daftar-checkin { display: grid; gap: 6px; max-height: 260px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .daftar-checkin button {
@@ -662,6 +675,11 @@ tfoot td { border-top: 1px solid var(--garis); border-bottom: 0; font-weight: 70
 }
 
 /* ---------- Responsif ---------- */
+@media (max-width: 1280px) {
+    .topbar { gap: 16px; }
+    .nav a { padding: 8px 10px; }
+    .jam { display: none; }
+}
 @media (max-width: 1100px) {
     .dua-kolom { grid-template-columns: minmax(0, 1fr); }
     .samping { position: static; }

@@ -58,7 +58,7 @@
                 <div class="panel-isi">
                     <div id="pesan" aria-live="assertive"></div>
 
-                    {{-- Check-in hanya dengan kode booking. Pemindahan ke slot lain menyusul di langkah 5. --}}
+                    {{-- Check-in hanya dengan kode booking. Booking yang menunggu bisa dipindah di halaman admin. --}}
                     <form id="mode-checkin" class="kolom-form" novalidate>
                         <div class="langkah-judul">Check-in dengan kode booking</div>
                         <div class="isian">
@@ -125,5 +125,5 @@
 
 @push('skrip')
     <script src="{{ asset('js/denah.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/parkir.js') }}?v=8" defer></script>
+    <script src="{{ asset('js/parkir.js') }}?v=9" defer></script>
 @endpush

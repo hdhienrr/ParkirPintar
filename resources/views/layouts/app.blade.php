@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=28">
+    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=30">
     @stack('kepala')
 </head>
 <body class="@yield('kelas-body')">
@@ -28,6 +28,8 @@
         @can('admin')
             <a href="{{ route('parkir', 'mobil') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'mobil'])>Parkir Mobil</a>
             <a href="{{ route('parkir', 'motor') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'motor'])>Parkir Motor</a>
+            <a href="{{ route('admin.booking.index') }}" @class(['aktif' => str_starts_with($rute, 'admin.booking.')])>Booking</a>
+            <a href="{{ route('admin.kendaraan.index') }}" @class(['aktif' => $rute === 'admin.kendaraan.index'])>Kendaraan</a>
             <a href="{{ route('areas.index') }}" @class(['aktif' => str_starts_with($rute, 'areas.')])>Area</a>
             <a href="{{ route('reports.occupancy') }}" @class(['aktif' => str_starts_with($rute, 'reports.')])>Laporan</a>
         @endcan

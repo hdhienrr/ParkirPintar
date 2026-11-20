@@ -32,6 +32,12 @@ class Format
         return $waktu->format('H.i');
     }
 
+    /** Hari ini: 08.00. Hari lain: 21 Nov 08.00. */
+    public static function waktuSingkat(CarbonInterface $waktu): string
+    {
+        return $waktu->isToday() ? self::jam($waktu) : $waktu->locale('id')->translatedFormat('d M').' '.self::jam($waktu);
+    }
+
     /** 8 -> 08.00 */
     public static function jamBulat(int $jam): string
     {

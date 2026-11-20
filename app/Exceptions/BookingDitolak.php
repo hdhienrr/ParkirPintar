@@ -82,6 +82,21 @@ class BookingDitolak extends AturanDitolak
         return new self('Tandai keluar hanya untuk booking yang dibatalkan sistem dan belum tercatat keluar.');
     }
 
+    public static function tidakBisaDipindah(string $status): self
+    {
+        return new self("Booking ini berstatus {$status}, jadi tidak bisa dipindah.");
+    }
+
+    public static function slotPenggantiSama(): self
+    {
+        return new self('Pilih slot yang berbeda dari slot booking sekarang.', 422);
+    }
+
+    public static function slotPenggantiTidakBebas(string $kodeSlot): self
+    {
+        return new self("Slot {$kodeSlot} tidak bebas pada jam booking ini. Pilih slot lain.");
+    }
+
     protected function kunciError(): string
     {
         return 'booking';

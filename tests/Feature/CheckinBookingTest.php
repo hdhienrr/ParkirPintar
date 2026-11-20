@@ -19,8 +19,7 @@ use Tests\TestCase;
  * Check-in dengan kode booking, karcis, check-out, overstay, denda, dan tandai keluar.
  * Hari uji: Senin, 23 November 2026. Admin yang melakukan semua aksi.
  *
- * Cabang "booking berikutnya dipindah ke slot lain tanpa denda" diuji di langkah 5,
- * karena pemindahan booking memang belum ada di langkah ini.
+ * Cabang "booking berikutnya dipindah ke slot lain tanpa denda" ada di PemindahanBookingTest.
  */
 class CheckinBookingTest extends TestCase
 {

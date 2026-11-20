@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\StatusBooking;
 use App\Models\Booking;
 use App\Models\User;
 
@@ -17,6 +18,12 @@ class BookingPolicy
     public function tandaiKeluar(User $user, Booking $booking): bool
     {
         return $user->adalahAdmin() && $booking->menungguTandaiKeluar();
+    }
+
+    /** Tombol pindah: hanya admin, untuk booking yang belum check-in. */
+    public function pindah(User $user, Booking $booking): bool
+    {
+        return $user->adalahAdmin() && in_array($booking->status, [StatusBooking::Dipesan, StatusBooking::Menunggu], true);
     }
 
     /** Pembatalan hanya oleh pemiliknya. */

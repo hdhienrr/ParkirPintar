@@ -12,6 +12,7 @@ use App\Models\Tarif;
 use App\Support\Format;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  * check-out (struk terbit, termasuk denda overstay), dan tandai keluar.
  * Aturan K07 untuk slot dan plat tetap dijalankan oleh LayananParkir.
  *
- * Catatan: pemindahan booking ke slot lain belum ada di sini (langkah 5).
+ * Pemindahan booking ke slot lain ada di LayananPemindahan.
  */
 class LayananKarcis
 {
@@ -29,6 +30,7 @@ class LayananKarcis
         private readonly LayananParkir $layananParkir,
         private readonly PenyegarStatusBooking $penyegar,
         private readonly KalkulatorDenda $kalkulatorDenda,
+        private readonly KalkulatorTarif $kalkulatorTarif,
     ) {}
 
     /**
@@ -46,6 +48,30 @@ class LayananKarcis
             ->whereDate('waktu_mulai', today())
             ->orderBy('waktu_mulai')
             ->get();
+    }
+
+    /**
+     * Kendaraan yang sedang di dalam, dengan perkiraan biaya bila keluar sekarang.
+     *
+     * @return SupportCollection<int, array>
+     */
+    public function kendaraanDiDalam(): SupportCollection
+    {
+        $this->penyegar->segarkan();
+        $sekarang = now()->startOfSecond();
+        $tarif = Tarif::all()->keyBy('jenis');
+
+        return KendaraanParkir::aktif()
+            ->with('slot.area', 'booking')
+            ->orderBy('waktu_masuk')
+            ->get()
+            ->map(fn (KendaraanParkir $k) => [
+                'kendaraan' => $k,
+                'perkiraan' => isset($tarif[$k->jenis])
+                    ? $this->kalkulatorTarif->hitung($tarif[$k->jenis], $k->waktu_masuk, $sekarang)
+                    : null,
+                'melewati_waktu' => (bool) $k->booking?->melewati_waktu,
+            ]);
     }
 
     /**
@@ -166,7 +192,13 @@ class LayananKarcis
         ])->save();
     }
 
-    private function masuk(Booking $booking): KendaraanParkir
+    /**
+     * Mencatat kendaraan booking ini masuk ke slotnya: aturan K07 lewat LayananParkir, lalu karcis terbit.
+     * Dipakai juga oleh LayananPemindahan setelah booking yang menunggu dipindah.
+     *
+     * @throws ParkirDitolak
+     */
+    public function masuk(Booking $booking): KendaraanParkir
     {
         $kendaraan = $this->layananParkir->checkIn($booking->slot_id, $booking->plat, $booking->jenis);
 

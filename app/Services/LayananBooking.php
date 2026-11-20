@@ -114,6 +114,23 @@ class LayananBooking
     }
 
     /**
+     * Semua booking yang dimulai pada satu tanggal, untuk daftar admin.
+     *
+     * @return EloquentCollection<int, Booking>
+     */
+    public function padaTanggal(CarbonImmutable $tanggal, ?StatusBooking $status = null): EloquentCollection
+    {
+        $this->segarkanStatus();
+
+        return Booking::with('slot.area', 'user', 'kendaraan')
+            ->whereDate('waktu_mulai', $tanggal)
+            ->when($status, fn ($query) => $query->where('status', $status))
+            ->orderBy('waktu_mulai')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
      * Jam bulat terdekat yang masih bisa dibooking, untuk isian awal formulir.
      */
     public function jadwalTerdekat(): CarbonImmutable

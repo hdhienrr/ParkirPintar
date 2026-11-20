@@ -164,7 +164,7 @@
                 body: JSON.stringify({ kode_booking: kode }),
             });
             if (isi.data.status === 'menunggu') {
-                tampilkanPesan('sukses', teksAman(isi.message));
+                tampilkanPesan('sukses', teksAman(isi.message) + ` <a href="${teksAman(isi.data.url_pindah)}">Pindahkan sekarang</a>`);
             } else {
                 tampilkanPesan('sukses', `Check-in <b class="mono">${teksAman(isi.data.plat)}</b> di slot <b class="mono">${teksAman(isi.data.kode_slot)}</b> berhasil.` + tautanKarcis(isi.data));
                 hapusDariDaftar(isi.data.kode_booking);

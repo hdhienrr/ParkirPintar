@@ -66,23 +66,31 @@ class ParkirController extends Controller
             ])->response();
         }
 
-        return back()->with('status', "Check-out {$hasil->kendaraan->plat} berhasil. Biaya ".Format::rupiah($hasil->kendaraan->biaya).'.');
+        $denda = $hasil->kendaraan->booking?->denda ?? 0;
+        $pesan = "Check-out {$hasil->kendaraan->plat} berhasil. Total ".Format::rupiah($hasil->kendaraan->biaya + $denda).'.';
+        if ($hasil->masukMenyusul) {
+            $pesan .= " Booking {$hasil->masukMenyusul->kode_booking} yang menunggu langsung check-in.";
+        }
+
+        return back()->with('status', $pesan);
     }
 
     private function jawabMenunggu(Request $request, Booking $booking): JsonResponse|RedirectResponse
     {
         $batas = $booking->menunggu_sejak->copy()->addMinutes(config('parkir.booking.tunggu_penghalang_menit'));
         $pesan = "Slot {$booking->slot->kode_slot} masih ditempati kendaraan yang melewati waktu selesai. "
-            .'Booking menunggu sampai pukul '.Format::jam($batas).'. Bila kendaraan itu keluar sebelumnya, check-in otomatis.';
+            .'Booking menunggu sampai pukul '.Format::jam($batas).'. Bila kendaraan itu keluar sebelumnya, check-in otomatis. '
+            .'Atau pindahkan ke slot lain yang bebas, tanpa denda.';
 
         if ($request->expectsJson()) {
             return response()->json(['data' => [
                 'status' => $booking->status->value,
                 'kode_booking' => $booking->kode_booking,
                 'menunggu_sampai' => $batas->toIso8601String(),
+                'url_pindah' => route('admin.booking.pindah.form', $booking),
             ], 'message' => $pesan], 202);
         }
 
-        return back()->with('status', $pesan);
+        return redirect()->route('admin.booking.pindah.form', $booking)->with('status', $pesan);
     }
 }
