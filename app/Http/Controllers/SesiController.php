@@ -38,6 +38,6 @@ class SesiController extends Controller
 
     public static function halamanAwal(User $user): string
     {
-        return $user->adalahAdmin() ? route('parkir', 'mobil') : route('beranda');
+        return $user->adalahAdmin() ? route('parkir', 'mobil') : route('booking.index');
     }
 }

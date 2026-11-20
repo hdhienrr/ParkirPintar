@@ -2,22 +2,11 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use RuntimeException;
-
 /**
- * Permintaan check-in/check-out yang melanggar aturan bisnis.
- * Tidak mengubah data, dan ditampilkan ke pengguna apa adanya.
+ * Check-in, check-out, atau perubahan area yang melanggar aturan bisnis.
  */
-class ParkirDitolak extends RuntimeException
+class ParkirDitolak extends AturanDitolak
 {
-    public function __construct(string $pesan, public readonly int $status = 409)
-    {
-        parent::__construct($pesan);
-    }
-
     public static function jenisTidakSesuai(string $kodeSlot, string $jenisSlot): self
     {
         return new self("Slot {$kodeSlot} hanya untuk {$jenisSlot}.", 422);
@@ -43,20 +32,8 @@ class ParkirDitolak extends RuntimeException
         return new self('Kendaraan ini sudah check-out.');
     }
 
-    public function render(Request $request): JsonResponse|RedirectResponse
+    protected function kunciError(): string
     {
-        if ($request->expectsJson()) {
-            return response()->json(['message' => $this->getMessage()], $this->status);
-        }
-
-        return back()->withInput()->withErrors(['parkir' => $this->getMessage()]);
-    }
-
-    /**
-     * Pesan ini untuk pengguna, bukan untuk log (memuat plat nomor).
-     */
-    public function report(): bool
-    {
-        return true;
+        return 'parkir';
     }
 }

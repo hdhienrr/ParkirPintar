@@ -3,14 +3,17 @@
 use App\Enums\JenisKendaraan;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BerandaController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DaftarController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ParkirController;
+use App\Http\Controllers\PeraturanController;
 use App\Http\Controllers\SesiController;
 use Illuminate\Support\Facades\Route;
 
 // Publik
 Route::get('/', BerandaController::class)->name('beranda');
+Route::get('/peraturan', PeraturanController::class)->name('peraturan');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [SesiController::class, 'create'])->name('login');
@@ -20,6 +23,21 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [SesiController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// User: booking milik sendiri
+Route::middleware(['auth', 'can:booking'])->group(function () {
+    Route::get('/booking/baru', [BookingController::class, 'create'])->name('booking.create');
+    Route::get('/booking/ketersediaan', [BookingController::class, 'ketersediaan'])->name('booking.ketersediaan');
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking-saya', [BookingController::class, 'index'])->name('booking.index');
+    Route::post('/booking/{booking}/batal', [BookingController::class, 'batal'])->can('batal', 'booking')->name('booking.batal');
+});
+
+// Bukti booking: pemilik atau admin
+Route::get('/booking/{booking}', [BookingController::class, 'show'])
+    ->middleware('auth')
+    ->can('view', 'booking')
+    ->name('booking.show');
 
 // Admin: semua fitur v1
 Route::middleware(['auth', 'can:admin'])->group(function () {

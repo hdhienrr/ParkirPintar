@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\Peran;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -15,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Dipakai rute admin (middleware can:admin) dan menu di navbar (@can).
+        // Dipakai rute (middleware can:...) dan menu di navbar (@can).
         Gate::define('admin', fn (User $user) => $user->adalahAdmin());
+        Gate::define('booking', fn (User $user) => $user->role === Peran::User);
     }
 }

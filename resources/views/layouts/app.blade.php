@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=26">
+    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=27">
     @stack('kepala')
 </head>
 <body class="@yield('kelas-body')">
@@ -21,12 +21,17 @@
         @php($rute = request()->route()?->getName() ?? '')
         @php($jenisAktif = request()->route('jenis'))
         <a href="{{ route('beranda') }}" @class(['aktif' => $rute === 'beranda'])>Beranda</a>
+        @can('booking')
+            <a href="{{ route('booking.create') }}" @class(['aktif' => $rute === 'booking.create'])>Booking</a>
+            <a href="{{ route('booking.index') }}" @class(['aktif' => in_array($rute, ['booking.index', 'booking.show'], true)])>Booking saya</a>
+        @endcan
         @can('admin')
             <a href="{{ route('parkir', 'mobil') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'mobil'])>Parkir Mobil</a>
             <a href="{{ route('parkir', 'motor') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'motor'])>Parkir Motor</a>
             <a href="{{ route('areas.index') }}" @class(['aktif' => str_starts_with($rute, 'areas.')])>Area</a>
             <a href="{{ route('reports.occupancy') }}" @class(['aktif' => str_starts_with($rute, 'reports.')])>Laporan</a>
         @endcan
+        <a href="{{ route('peraturan') }}" @class(['aktif' => $rute === 'peraturan'])>Peraturan</a>
     </nav>
     <div class="topbar-kanan">
         <span class="jam" id="jam" aria-label="Waktu sekarang">{{ now()->format('d M Y, H:i') }}</span>

@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Carbon\CarbonInterface;
+
 class Format
 {
     public static function rupiah(?int $nilai): string
@@ -16,6 +18,24 @@ class Format
         $sisa = $menit % 60;
 
         return trim(($jam > 0 ? "{$jam} jam " : '').($sisa > 0 || $jam === 0 ? "{$sisa} menit" : ''));
+    }
+
+    /** Senin, 23 November 2026 */
+    public static function tanggal(CarbonInterface $waktu): string
+    {
+        return $waktu->locale('id')->translatedFormat('l, d F Y');
+    }
+
+    /** 08.00 */
+    public static function jam(CarbonInterface $waktu): string
+    {
+        return $waktu->format('H.i');
+    }
+
+    /** 8 -> 08.00 */
+    public static function jamBulat(int $jam): string
+    {
+        return sprintf('%02d.00', $jam);
     }
 
     public static function persen(int $bagian, int $total): int

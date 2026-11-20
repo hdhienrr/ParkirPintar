@@ -11,6 +11,7 @@
     const jedaSegarMs = Number(akar.dataset.segarDetik) * 1000;
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const $ = (id) => document.getElementById(id);
+    const teksAman = Denah.teksAman;
 
     const el = {
         denah: $('denah'),
@@ -83,96 +84,13 @@
 
     // ---------- Denah ----------
 
-    function teksAman(teks) {
-        const d = document.createElement('div');
-        d.textContent = teks;
-        return d.innerHTML;
-    }
-
     function gambarDenah() {
-        const perZona = new Map();
-        for (const s of keadaan.slot) {
-            if (!perZona.has(s.zona)) perZona.set(s.zona, new Map());
-            const blok = perZona.get(s.zona);
-            if (!blok.has(s.blok)) blok.set(s.blok, []);
-            blok.get(s.blok).push(s);
-        }
-
-        const jumlahZona = perZona.size;
-        const kolomZona = Math.min(2, Math.max(1, jumlahZona));
-        const barisZona = Math.ceil(jumlahZona / kolomZona);
-
-        const lantai = document.createElement('div');
-        lantai.className = 'lantai';
-
-        const jalur = document.createElement('div');
-        jalur.className = 'jalur';
-        jalur.innerHTML = '<span aria-hidden="true">↑</span><span class="teks-tegak">JALUR KENDARAAN</span><span aria-hidden="true">↑</span>';
-        lantai.appendChild(jalur);
-
-        const zonaGrid = document.createElement('div');
-        zonaGrid.className = 'zona-grid';
-        zonaGrid.style.gridTemplateColumns = `repeat(${kolomZona}, auto)`;
-
-        // Bagian depan ada di bawah denah, jadi zona pertama (dekat pintu) di kiri bawah.
-        for (const [zona, blokMap] of [...perZona.entries()].sort((a, b) => a[0] - b[0])) {
-            const z = document.createElement('div');
-            z.className = 'zona';
-            z.style.gridColumn = String((zona % kolomZona) + 1);
-            z.style.gridRow = String(barisZona - Math.floor(zona / kolomZona));
-
-            const label = document.createElement('div');
-            label.className = 'zona-label';
-            label.textContent = `Zona ${zona + 1}`;
-            z.appendChild(label);
-
-            const blokGrid = document.createElement('div');
-            blokGrid.className = 'blok-grid';
-            for (const [blok, isi] of [...blokMap.entries()].sort((a, b) => a[0] - b[0])) {
-                const b = document.createElement('div');
-                b.className = 'blok';
-                b.style.gridColumn = String((blok % 3) + 1);
-                b.style.gridRow = String(2 - Math.floor(blok / 3));
-                for (const s of isi.sort((x, y) => x.urutan - y.urutan)) b.appendChild(tombolSlot(s));
-                blokGrid.appendChild(b);
-            }
-            z.appendChild(blokGrid);
-            zonaGrid.appendChild(z);
-        }
-        lantai.appendChild(zonaGrid);
-
-        const depan = document.createElement('div');
-        depan.className = 'depan';
-        depan.innerHTML = '<span class="pintu">▲ PINTU MASUK</span><span>DEPAN</span>';
-        lantai.appendChild(depan);
-
-        el.denah.replaceChildren(lantai);
-    }
-
-    function tombolSlot(s) {
-        const t = document.createElement('button');
-        t.type = 'button';
-        t.dataset.slot = s.id;
-        const dipilih = keadaan.dipilih === s.id;
-        t.className = 'slot' + (s.status === 'terisi' ? ' terisi' : '') + (dipilih ? ' dipilih' : '');
-        t.setAttribute('aria-pressed', dipilih ? 'true' : 'false');
-
-        const statusTeks = dipilih ? 'dipilih' : s.status;
-        t.setAttribute('aria-label', `Slot ${s.kode_slot}, ${statusTeks}` + (s.kendaraan ? `, ${s.kendaraan.plat}` : ''));
-        t.title = s.kendaraan ? `${s.kode_slot} · ${s.kendaraan.plat}` : `${s.kode_slot} · kosong`;
-
-        // Slot kosong yang dipilih menampilkan pratinjau samar kendaraan yang akan parkir di situ.
-        const terisi = s.status === 'terisi';
-        const ikon = terisi ? '✕' : (dipilih ? '' : '✓');
-        const gambarSlot = terisi
-            ? `<img src="${gambar}" alt="">`
-            : (dipilih ? `<img class="pratinjau" src="${gambar}" alt="">` : '');
-        t.innerHTML = `<span class="slot-ikon" aria-hidden="true">${ikon}</span>`
-            + gambarSlot
-            + `<span class="slot-nomor">${String(s.nomor).padStart(2, '0')}</span>`;
-
-        t.addEventListener('click', () => pilihSlot(s.id));
-        return t;
+        Denah.gambar(el.denah, keadaan.slot, {
+            dipilih: keadaan.dipilih,
+            gambar,
+            keterangan: (s) => (s.kendaraan ? s.kendaraan.plat : ''),
+            onPilih: pilihSlot,
+        });
     }
 
     // ---------- Panel ----------
@@ -229,17 +147,8 @@
         if (hitung) hitung.textContent = `${a.kosong}/${a.total_slot}`;
     }
 
-    function tampilkanPesan(jenisPesan, teks) {
-        if (!jenisPesan) {
-            el.pesan.replaceChildren();
-            return;
-        }
-        const kotak = document.createElement('div');
-        kotak.className = `pesan pesan-${jenisPesan}`;
-        kotak.setAttribute('role', jenisPesan === 'gagal' ? 'alert' : 'status');
-        kotak.innerHTML = `<span class="pesan-ikon" aria-hidden="true">${jenisPesan === 'gagal' ? '!' : '✓'}</span><div></div>`;
-        kotak.lastChild.innerHTML = teks;
-        el.pesan.replaceChildren(kotak);
+    function tampilkanPesan(jenisPesan, html) {
+        Denah.tampilkanPesan(el.pesan, jenisPesan, html);
     }
 
     // ---------- Aksi ----------

@@ -10,16 +10,17 @@
         <div class="hero-teks">
             <p class="label">Sistem parkir gedung</p>
             <h1>Parkir lebih cepat, <span class="hero-sorot">tanpa cari-cari slot</span></h1>
-            <p class="hero-deskripsi">Pilih slot langsung dari denah tiap lantai, catat plat nomor, dan biaya dihitung otomatis saat kendaraan keluar.</p>
+            <p class="hero-deskripsi">Booking slot langsung dari denah tiap lantai, datang sesuai jadwal, dan bayar sesuai lama parkir saat keluar.</p>
             <div class="hero-aksi">
                 @can('admin')
                     <a href="{{ route('parkir', 'mobil') }}" class="tombol tombol-utama">Check-in mobil</a>
                     <a href="{{ route('parkir', 'motor') }}" class="tombol">Check-in motor</a>
-                @elseauth
-                    <a href="#judul-area" class="tombol tombol-utama">Lihat ketersediaan</a>
+                @elsecan('booking')
+                    <a href="{{ route('booking.create') }}" class="tombol tombol-utama">Booking sekarang</a>
+                    <a href="{{ route('booking.index') }}" class="tombol">Booking saya</a>
                 @else
-                    <a href="{{ route('register') }}" class="tombol tombol-utama">Daftar sekarang</a>
-                    <a href="{{ route('login') }}" class="tombol">Masuk</a>
+                    <a href="{{ route('booking.create') }}" class="tombol tombol-utama">Booking sekarang</a>
+                    <a href="{{ route('peraturan') }}" class="tombol">Lihat peraturan</a>
                 @endcan
             </div>
         </div>
@@ -106,9 +107,9 @@
             </div>
         </div>
         <div class="cara-grid">
-            <div class="cara-item" data-muncul><span>1</span><h3>Catat plat nomor</h3><p>Isi plat kendaraan yang masuk, dengan atau tanpa spasi.</p></div>
-            <div class="cara-item" data-muncul><span>2</span><h3>Pilih slot di denah</h3><p>Pilih lantai, lalu klik slot hijau. Slot terisi tidak bisa dipilih dua kali.</p></div>
-            <div class="cara-item" data-muncul><span>3</span><h3>Check-out otomatis</h3><p>Klik slot merah saat kendaraan keluar. Durasi dan biaya langsung terhitung.</p></div>
+            <div class="cara-item" data-muncul><span>1</span><h3>Booking slot</h3><p>Isi plat, pilih tanggal dan jam, lalu klik slot yang masih bebas di denah.</p></div>
+            <div class="cara-item" data-muncul><span>2</span><h3>Datang sesuai jadwal</h3><p>Tunjukkan kode booking ke petugas. Karcis parkir terbit saat check-in.</p></div>
+            <div class="cara-item" data-muncul><span>3</span><h3>Bayar saat keluar</h3><p>Biaya dihitung dari waktu masuk sampai keluar, lalu struk terbit.</p></div>
         </div>
     </section>
 

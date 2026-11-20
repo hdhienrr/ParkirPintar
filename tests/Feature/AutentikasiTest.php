@@ -34,7 +34,7 @@ class AutentikasiTest extends TestCase
 
     public function test_daftar_membuat_akun_user_dan_langsung_masuk(): void
     {
-        $this->post('/register', $this->dataDaftar())->assertRedirect(route('beranda'));
+        $this->post('/register', $this->dataDaftar())->assertRedirect(route('booking.index'));
 
         $user = User::where('email', 'budi@contoh.test')->firstOrFail();
         $this->assertSame(Peran::User, $user->role);
@@ -67,7 +67,7 @@ class AutentikasiTest extends TestCase
     {
         $user = User::factory()->create(['password' => self::PASSWORD]);
 
-        $this->post('/login', ['email' => $user->email, 'password' => self::PASSWORD])->assertRedirect(route('beranda'));
+        $this->post('/login', ['email' => $user->email, 'password' => self::PASSWORD])->assertRedirect(route('booking.index'));
 
         $this->assertAuthenticatedAs($user);
     }

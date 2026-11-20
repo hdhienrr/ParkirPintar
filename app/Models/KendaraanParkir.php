@@ -14,6 +14,9 @@ class KendaraanParkir extends Model
     /** @use HasFactory<KendaraanParkirFactory> */
     use HasFactory;
 
+    /** Contoh: B 1234 XY, D 1 A, AB 12. Spasi boleh ada atau tidak. */
+    public const POLA_PLAT = '/^[A-Za-z]{1,2}\s*\d{1,4}\s*[A-Za-z]{0,3}$/';
+
     protected $table = 'kendaraan_parkir';
 
     protected $fillable = [
