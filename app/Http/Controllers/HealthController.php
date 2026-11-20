@@ -14,9 +14,9 @@ class HealthController extends Controller
             DB::select('select 1');
         } catch (Throwable) {
             // Detail error (host, user) tidak dikirim ke luar.
-            return response()->json(['status' => 'error', 'database' => 'tidak terhubung'], 503);
+            return response()->json(['status' => 'error', 'database' => 'down'], 503);
         }
 
-        return response()->json(['status' => 'ok', 'database' => 'terhubung']);
+        return response()->json(['status' => 'ok', 'database' => 'up']);
     }
 }

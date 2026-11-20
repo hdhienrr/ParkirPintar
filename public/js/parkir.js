@@ -309,9 +309,5 @@
         if (!keadaan.sibuk && document.visibilityState === 'visible') muatDenah({ diam: true });
     }, 20000);
 
-    // Plat bisa dibawa dari kartu check-in cepat di beranda (?plat=...).
-    const platAwal = new URLSearchParams(location.search).get('plat');
-    if (platAwal) el.plat.value = platAwal;
-
     muatDenah();
 })();

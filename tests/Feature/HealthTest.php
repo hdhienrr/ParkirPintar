@@ -11,7 +11,7 @@ class HealthTest extends TestCase
     {
         $this->getJson('/health')
             ->assertOk()
-            ->assertExactJson(['status' => 'ok', 'database' => 'terhubung']);
+            ->assertExactJson(['status' => 'ok', 'database' => 'up']);
     }
 
     public function test_health_503_saat_database_tidak_terhubung(): void
@@ -22,6 +22,6 @@ class HealthTest extends TestCase
 
         $this->getJson('/health')
             ->assertStatus(503)
-            ->assertExactJson(['status' => 'error', 'database' => 'tidak terhubung']);
+            ->assertExactJson(['status' => 'error', 'database' => 'down']);
     }
 }

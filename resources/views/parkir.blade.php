@@ -116,5 +116,5 @@
 @endsection
 
 @push('skrip')
-    <script src="{{ asset('js/parkir.js') }}?v=3" defer></script>
+    <script src="{{ asset('js/parkir.js') }}?v=4" defer></script>
 @endpush
