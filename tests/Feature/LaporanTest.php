@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\KendaraanParkir;
 use App\Models\SlotParkir;
 use App\Models\User;
+use App\Services\LayananParkir;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,13 +25,15 @@ class LaporanTest extends TestCase
         $this->actingAs(User::factory()->admin()->create());
     }
 
+    /** Sejak v2 /checkin memakai kode booking, jadi aturan K07 dipanggil langsung lewat LayananParkir. */
+    private function checkin(string $kode, string $plat, string $jenis): KendaraanParkir
+    {
+        return app(LayananParkir::class)->checkIn(SlotParkir::where('kode_slot', $kode)->value('id'), $plat, $jenis);
+    }
+
     private function parkir(string $kode, string $plat, string $jenis, int $menit): void
     {
-        $id = $this->postJson('/checkin', [
-            'slot_id' => SlotParkir::where('kode_slot', $kode)->value('id'),
-            'plat' => $plat,
-            'jenis' => $jenis,
-        ])->json('data.id');
+        $id = $this->checkin($kode, $plat, $jenis)->id;
 
         $this->travel($menit)->minutes();
         $this->postJson("/checkout/{$id}")->assertOk();
@@ -37,8 +41,8 @@ class LaporanTest extends TestCase
 
     public function test_okupansi_per_area_dan_per_jenis(): void
     {
-        $this->postJson('/checkin', ['slot_id' => SlotParkir::where('kode_slot', 'A1-01')->value('id'), 'plat' => 'B 1 A', 'jenis' => 'mobil']);
-        $this->postJson('/checkin', ['slot_id' => SlotParkir::where('kode_slot', 'M2-01')->value('id'), 'plat' => 'B 2 A', 'jenis' => 'motor']);
+        $this->checkin('A1-01', 'B 1 A', 'mobil');
+        $this->checkin('M2-01', 'B 2 A', 'motor');
 
         $this->getJson('/reports/occupancy')
             ->assertOk()

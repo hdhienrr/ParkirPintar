@@ -1,10 +1,12 @@
 <?php
 
 use App\Enums\JenisKendaraan;
+use App\Http\Controllers\AdminBookingController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BerandaController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\DaftarController;
+use App\Http\Controllers\KarcisController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ParkirController;
 use App\Http\Controllers\PeraturanController;
@@ -39,11 +41,18 @@ Route::get('/booking/{booking}', [BookingController::class, 'show'])
     ->can('view', 'booking')
     ->name('booking.show');
 
-// Admin: semua fitur v1
+// Karcis parkir dan struk keluar: pemilik booking atau admin
+Route::get('/karcis/{kendaraan:nomor_karcis}', [KarcisController::class, 'show'])
+    ->middleware('auth')
+    ->can('view', 'kendaraan')
+    ->name('karcis.show');
+
+// Admin: semua fitur v1, check-in dengan kode booking
 Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::get('/parkir/{jenis}', [ParkirController::class, 'halaman'])->whereIn('jenis', JenisKendaraan::nilai())->name('parkir');
     Route::post('/checkin', [ParkirController::class, 'checkin'])->name('checkin');
     Route::post('/checkout/{id}', [ParkirController::class, 'checkout'])->whereNumber('id')->name('checkout');
+    Route::post('/admin/booking/{booking}/keluar', [AdminBookingController::class, 'keluar'])->name('admin.booking.keluar');
 
     Route::get('/areas', [AreaController::class, 'index'])->name('areas.index');
     Route::post('/areas', [AreaController::class, 'store'])->name('areas.store');

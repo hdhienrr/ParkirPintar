@@ -1,4 +1,4 @@
-// Denah slot, check-in, dan check-out. Data selalu dimuat dari /areas/{id}/slots.
+// Halaman petugas: denah slot, check-in dengan kode booking, dan check-out. Denah dimuat dari /areas/{id}/slots.
 (function () {
     'use strict';
 
@@ -19,8 +19,8 @@
         ringkasan: $('ringkasan-area'),
         formCheckin: $('mode-checkin'),
         modeCheckout: $('mode-checkout'),
-        plat: $('plat'),
-        infoSlot: $('info-slot'),
+        kodeBooking: $('kode-booking'),
+        daftarBooking: $('daftar-booking'),
         tombolCheckin: $('tombol-checkin'),
         tombolCheckout: $('tombol-checkout'),
         tombolBatal: $('tombol-batal'),
@@ -89,6 +89,8 @@
             dipilih: keadaan.dipilih,
             gambar,
             keterangan: (s) => (s.kendaraan ? s.kendaraan.plat : ''),
+            // Slot kosong tidak dipilih di sini: check-in selalu lewat kode booking.
+            bisaDipilih: (s) => s.status === 'terisi',
             onPilih: pilihSlot,
         });
     }
@@ -104,7 +106,6 @@
         tampilkanPesan(null);
         gambarDenah();
         perbaruiPanel();
-        if (slotDipilih()?.status === 'kosong' && !el.plat.value.trim()) el.plat.focus();
     }
 
     function perbaruiPanel() {
@@ -123,21 +124,7 @@
             return;
         }
 
-        if (s) {
-            el.infoSlot.className = 'kotak-info terisi-pilihan';
-            el.infoSlot.innerHTML = `<span class="mono">${teksAman(s.kode_slot)}</span> · ${teksAman(keadaan.area.nama)}`;
-        } else {
-            el.infoSlot.className = 'kotak-info';
-            el.infoSlot.textContent = 'Klik slot hijau di denah.';
-        }
-
-        const adaPlat = el.plat.value.trim().length > 0;
-        $('langkah-1').classList.toggle('selesai', adaPlat);
-        $('langkah-2').classList.toggle('selesai', Boolean(s));
-        el.tombolCheckin.disabled = !(adaPlat && s) || keadaan.sibuk;
-        el.tombolCheckin.textContent = s && adaPlat
-            ? `Check-in ${el.plat.value.trim().toUpperCase()} di ${s.kode_slot}`
-            : 'Check-in';
+        el.tombolCheckin.disabled = keadaan.sibuk;
     }
 
     function perbaruiRingkasan() {
@@ -153,29 +140,50 @@
 
     // ---------- Aksi ----------
 
-    el.plat.addEventListener('input', perbaruiPanel);
+    const tautanKarcis = (data) => (data.url_karcis
+        ? ` <a href="${teksAman(data.url_karcis)}">Lihat karcis ${teksAman(data.nomor_karcis)}</a>`
+        : '');
+
+    // Booking yang sudah check-in tidak perlu muncul lagi di pilihan formulir.
+    function hapusDariDaftar(kode) {
+        const pilih = `[data-kode="${CSS.escape(kode)}"], option[value="${CSS.escape(kode)}"]`;
+        document.querySelectorAll(pilih).forEach((elemen) => elemen.remove());
+        $('jumlah-siap').textContent = String(el.daftarBooking.querySelectorAll('li[data-kode]').length);
+    }
 
     el.formCheckin.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const s = slotDipilih();
-        if (!s || keadaan.sibuk) return;
+        const kode = el.kodeBooking.value.trim();
+        if (!kode || keadaan.sibuk) return;
 
         keadaan.sibuk = true;
         perbaruiPanel();
         try {
-            const { data } = await kirim(`${dasar}/checkin`, {
+            const isi = await kirim(`${dasar}/checkin`, {
                 method: 'POST',
-                body: JSON.stringify({ slot_id: s.id, plat: el.plat.value, jenis }),
+                body: JSON.stringify({ kode_booking: kode }),
             });
-            tampilkanPesan('sukses', `Check-in <b class="mono">${teksAman(data.plat)}</b> di slot <b class="mono">${teksAman(data.kode_slot)}</b> berhasil.`);
-            el.plat.value = '';
-            keadaan.dipilih = null;
+            if (isi.data.status === 'menunggu') {
+                tampilkanPesan('sukses', teksAman(isi.message));
+            } else {
+                tampilkanPesan('sukses', `Check-in <b class="mono">${teksAman(isi.data.plat)}</b> di slot <b class="mono">${teksAman(isi.data.kode_slot)}</b> berhasil.` + tautanKarcis(isi.data));
+                hapusDariDaftar(isi.data.kode_booking);
+            }
+            el.kodeBooking.value = '';
         } catch (err) {
             tampilkanPesan('gagal', teksAman(err.message));
         } finally {
             keadaan.sibuk = false;
+            perbaruiPanel();
             await muatDenah({ diam: true });
         }
+    });
+
+    el.daftarBooking.addEventListener('click', (e) => {
+        const tombol = e.target.closest('[data-kode]');
+        if (!tombol) return;
+        el.kodeBooking.value = tombol.dataset.kode;
+        el.kodeBooking.focus();
     });
 
     el.tombolCheckout.addEventListener('click', async () => {
@@ -185,10 +193,15 @@
         keadaan.sibuk = true;
         el.tombolCheckout.disabled = true;
         try {
-            const { data } = await kirim(`${dasar}/checkout/${s.kendaraan.id}`, { method: 'POST' });
+            const isi = await kirim(`${dasar}/checkout/${s.kendaraan.id}`, { method: 'POST' });
+            const { data } = isi;
+            const menyusul = isi.masuk_menyusul;
             tampilkanPesan('sukses',
                 `Check-out <b class="mono">${teksAman(data.plat)}</b> dari ${teksAman(data.kode_slot)} berhasil.`
-                + `<br>Durasi <b class="mono">${durasi(data.durasi_menit)}</b> · Biaya <b class="mono">${rupiah(data.biaya)}</b>`);
+                + `<br>Durasi <b class="mono">${durasi(data.durasi_menit)}</b> · Biaya <b class="mono">${rupiah(data.biaya)}</b>`
+                + (data.denda > 0 ? ` · Denda <b class="mono">${rupiah(data.denda)}</b> · Total <b class="mono">${rupiah(data.total)}</b>` : '')
+                + tautanKarcis(data)
+                + (menyusul ? `<br>Booking yang menunggu langsung check-in: <b class="mono">${teksAman(menyusul.plat)}</b>.${tautanKarcis(menyusul)}` : ''));
             keadaan.dipilih = null;
         } catch (err) {
             tampilkanPesan('gagal', teksAman(err.message));

@@ -21,6 +21,8 @@ class KendaraanParkir extends Model
 
     protected $fillable = [
         'slot_id',
+        'booking_id',
+        'nomor_karcis',
         'plat',
         'jenis',
         'waktu_masuk',
@@ -53,6 +55,11 @@ class KendaraanParkir extends Model
     public static function normalisasiPlat(string $plat): string
     {
         return strtoupper(preg_replace('/\s+/', '', $plat));
+    }
+
+    public function booking(): BelongsTo
+    {
+        return $this->belongsTo(Booking::class);
     }
 
     public function slot(): BelongsTo

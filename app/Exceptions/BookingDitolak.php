@@ -62,6 +62,26 @@ class BookingDitolak extends AturanDitolak
         return new self('Booking hanya bisa dibatalkan sebelum waktu mulai, selama belum check-in.');
     }
 
+    public static function tidakDitemukan(): self
+    {
+        return new self('Kode booking tidak ditemukan. Check-in hanya bisa dengan booking.', 404);
+    }
+
+    public static function tidakBisaCheckin(string $status): self
+    {
+        return new self("Booking ini berstatus {$status}, jadi tidak bisa check-in.");
+    }
+
+    public static function terlaluAwal(string $jamBoleh): self
+    {
+        return new self("Check-in untuk booking ini baru bisa mulai pukul {$jamBoleh}.", 422);
+    }
+
+    public static function tidakBisaTandaiKeluar(): self
+    {
+        return new self('Tandai keluar hanya untuk booking yang dibatalkan sistem dan belum tercatat keluar.');
+    }
+
     protected function kunciError(): string
     {
         return 'booking';

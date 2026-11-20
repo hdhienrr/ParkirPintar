@@ -2,26 +2,24 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\JenisKendaraan;
-use App\Models\KendaraanParkir;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
+/**
+ * Check-in hanya dengan kode booking, bukan plat dan slot bebas.
+ */
 class CheckinRequest extends FormRequest
 {
     public function rules(): array
     {
         return [
-            'slot_id' => ['required', 'integer', 'exists:slot_parkir,id'],
-            'plat' => ['required', 'string', 'max:15', 'regex:'.KendaraanParkir::POLA_PLAT],
-            'jenis' => ['required', Rule::enum(JenisKendaraan::class)],
+            'kode_booking' => ['required', 'string', 'max:20'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'plat.regex' => 'Format plat nomor tidak valid, contoh: B 1234 XY.',
+            'kode_booking.required' => 'Isi atau pilih kode booking. Check-in tanpa booking tidak bisa.',
         ];
     }
 }

@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
 @php($namaJenis = $jenis->label())
+@use('App\Support\Format')
 
-@section('label', 'Check-in & check-out')
+@section('label', 'Petugas · check-in & check-out')
 @section('judul', "Parkir {$namaJenis}")
 
 @section('aksi-judul')
@@ -57,33 +58,39 @@
                 <div class="panel-isi">
                     <div id="pesan" aria-live="assertive"></div>
 
-                    {{-- Mode check-in: slot kosong dipilih atau belum ada pilihan --}}
-                    <form id="mode-checkin" class="langkah" novalidate>
-                        <div class="langkah-item" id="langkah-1">
-                            <span class="langkah-nomor">1</span>
-                            <div>
-                                <div class="langkah-judul">Data kendaraan</div>
-                                <div class="isian">
-                                    <label for="plat">Plat nomor</label>
-                                    <input id="plat" name="plat" class="input-plat" maxlength="15" autocomplete="off" placeholder="B 1234 XY" required>
-                                </div>
-                            </div>
+                    {{-- Check-in hanya dengan kode booking. Pemindahan ke slot lain menyusul di langkah 5. --}}
+                    <form id="mode-checkin" class="kolom-form" novalidate>
+                        <div class="langkah-judul">Check-in dengan kode booking</div>
+                        <div class="isian">
+                            <label for="kode-booking">Kode booking</label>
+                            <input id="kode-booking" name="kode_booking" class="input-plat" list="pilihan-kode" maxlength="20" autocomplete="off" placeholder="BK-XXXXXXXX" required>
+                            <datalist id="pilihan-kode">
+                                @foreach ($siapCheckin as $b)
+                                    <option value="{{ $b->kode_booking }}">{{ Format::jam($b->waktu_mulai) }} · {{ $b->plat }} · {{ $b->slot->kode_slot }}</option>
+                                @endforeach
+                            </datalist>
+                            <span class="petunjuk">Ketik kode dari pengunjung, atau pilih dari booking hari ini di bawah.</span>
                         </div>
+                        <button type="submit" id="tombol-checkin" class="tombol tombol-utama tombol-penuh">Check-in</button>
 
-                        <div class="langkah-item" id="langkah-2">
-                            <span class="langkah-nomor">2</span>
-                            <div>
-                                <div class="langkah-judul">Pilih lantai &amp; slot</div>
-                                <div id="info-slot" class="kotak-info">Klik slot hijau di denah.</div>
-                            </div>
-                        </div>
-
-                        <div class="langkah-item" id="langkah-3">
-                            <span class="langkah-nomor">3</span>
-                            <div>
-                                <div class="langkah-judul">Konfirmasi</div>
-                                <button type="submit" id="tombol-checkin" class="tombol tombol-utama tombol-penuh" disabled>Check-in</button>
-                            </div>
+                        <div>
+                            <p class="label">Booking hari ini (<span id="jumlah-siap">{{ $siapCheckin->count() }}</span>)</p>
+                            <ul id="daftar-booking" class="daftar-checkin">
+                                @forelse ($siapCheckin as $b)
+                                    <li data-kode="{{ $b->kode_booking }}">
+                                        <button type="button" data-kode="{{ $b->kode_booking }}">
+                                            <span class="mono">{{ Format::jam($b->waktu_mulai) }}</span>
+                                            <span class="mono">{{ $b->plat }}</span>
+                                            <span class="mono">{{ $b->slot->kode_slot }}</span>
+                                            @if ($b->status === \App\Enums\StatusBooking::Menunggu)
+                                                <span class="status-booking status-menunggu">Menunggu</span>
+                                            @endif
+                                        </button>
+                                    </li>
+                                @empty
+                                    <li class="redup">Belum ada booking {{ $jenis->value }} hari ini yang menunggu check-in.</li>
+                                @endforelse
+                            </ul>
                         </div>
                     </form>
 
@@ -118,5 +125,5 @@
 
 @push('skrip')
     <script src="{{ asset('js/denah.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/parkir.js') }}?v=6" defer></script>
+    <script src="{{ asset('js/parkir.js') }}?v=8" defer></script>
 @endpush

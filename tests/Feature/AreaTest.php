@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\AreaParkir;
 use App\Models\SlotParkir;
 use App\Models\User;
+use App\Services\LayananParkir;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -74,7 +75,7 @@ class AreaTest extends TestCase
         $this->putJson("/areas/{$area->id}", ['nama' => 'Motor Lantai 2', 'jumlah_slot' => 90])->assertOk();
 
         $slotTerakhir = SlotParkir::where('kode_slot', 'M2-90')->firstOrFail();
-        $this->postJson('/checkin', ['slot_id' => $slotTerakhir->id, 'plat' => 'D 1 A', 'jenis' => 'motor'])->assertCreated();
+        app(LayananParkir::class)->checkIn($slotTerakhir->id, 'D 1 A', 'motor');
 
         $this->putJson("/areas/{$area->id}", ['nama' => 'Motor Lantai 2', 'jumlah_slot' => 72])
             ->assertStatus(422)
@@ -87,7 +88,7 @@ class AreaTest extends TestCase
     {
         $area = AreaParkir::where('nama', 'Mobil Lantai 1')->firstOrFail();
         $slot = SlotParkir::where('kode_slot', 'A1-22')->firstOrFail();
-        $this->postJson('/checkin', ['slot_id' => $slot->id, 'plat' => 'B 1234 XY', 'jenis' => 'mobil'])->assertCreated();
+        app(LayananParkir::class)->checkIn($slot->id, 'B 1234 XY', 'mobil');
 
         $respons = $this->getJson("/areas/{$area->id}/slots")
             ->assertOk()
@@ -104,7 +105,7 @@ class AreaTest extends TestCase
     public function test_area_dengan_riwayat_parkir_tidak_bisa_dihapus(): void
     {
         $slot = SlotParkir::where('kode_slot', 'M1-01')->firstOrFail();
-        $this->postJson('/checkin', ['slot_id' => $slot->id, 'plat' => 'D 2 B', 'jenis' => 'motor'])->assertCreated();
+        app(LayananParkir::class)->checkIn($slot->id, 'D 2 B', 'motor');
 
         $this->deleteJson("/areas/{$slot->area_id}")->assertStatus(409);
 

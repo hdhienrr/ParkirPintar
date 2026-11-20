@@ -43,6 +43,9 @@
 
                 <div class="kartu-booking-aksi">
                     <a href="{{ route('booking.show', $b) }}" class="tombol tombol-kecil">Lihat bukti</a>
+                    @if ($b->kendaraan?->nomor_karcis)
+                        <a href="{{ route('karcis.show', $b->kendaraan) }}" class="tombol tombol-kecil">Karcis</a>
+                    @endif
                     @if ($b->bisaDibatalkan())
                         <form method="POST" action="{{ route('booking.batal', $b) }}" onsubmit="return confirm('Batalkan booking {{ $b->kode_booking }}?')">
                             @csrf

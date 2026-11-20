@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\JenisKendaraan;
+use App\Enums\StatusBooking;
 use App\Http\Requests\CheckinRequest;
 use App\Http\Resources\KendaraanParkirResource;
+use App\Models\Booking;
 use App\Models\Tarif;
 use App\Services\LayananArea;
-use App\Services\LayananParkir;
+use App\Services\LayananKarcis;
 use App\Support\Format;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -17,12 +19,12 @@ use Illuminate\View\View;
 class ParkirController extends Controller
 {
     public function __construct(
-        private readonly LayananParkir $layanan,
+        private readonly LayananKarcis $layanan,
         private readonly LayananArea $layananArea,
     ) {}
 
     /**
-     * Halaman check-in dan check-out untuk satu jenis kendaraan, dengan tab lantai dan denah slot.
+     * Halaman petugas untuk satu jenis kendaraan: denah per lantai, check-in dengan kode booking, dan check-out.
      */
     public function halaman(Request $request, string $jenis): View
     {
@@ -33,29 +35,54 @@ class ParkirController extends Controller
             'area' => $area,
             'areaDipilih' => $area->firstWhere('id', (int) $request->query('area')) ?? $area->first(),
             'tarif' => Tarif::where('jenis', $jenis)->first(),
+            'siapCheckin' => $this->layanan->siapCheckin($jenis),
         ]);
     }
 
     public function checkin(CheckinRequest $request): JsonResponse|RedirectResponse
     {
-        $data = $request->validated();
-        $kendaraan = $this->layanan->checkIn((int) $data['slot_id'], $data['plat'], $data['jenis']);
+        $booking = $this->layanan->checkIn($request->validated('kode_booking'));
 
-        if ($request->expectsJson()) {
-            return (new KendaraanParkirResource($kendaraan))->response();
+        if ($booking->status === StatusBooking::Menunggu) {
+            return $this->jawabMenunggu($request, $booking);
         }
 
-        return back()->with('status', "Check-in {$kendaraan->plat} di slot {$kendaraan->slot->kode_slot} berhasil.");
+        if ($request->expectsJson()) {
+            return (new KendaraanParkirResource($booking->kendaraan))->response()->setStatusCode(201);
+        }
+
+        return redirect()->route('karcis.show', $booking->kendaraan)->with('status', 'Check-in berhasil. Karcis parkir terbit.');
     }
 
     public function checkout(Request $request, int $id): JsonResponse|RedirectResponse
     {
-        $kendaraan = $this->layanan->checkOut($id);
+        $hasil = $this->layanan->checkOut($id);
 
         if ($request->expectsJson()) {
-            return (new KendaraanParkirResource($kendaraan))->response();
+            return (new KendaraanParkirResource($hasil->kendaraan))->additional([
+                'masuk_menyusul' => $hasil->masukMenyusul
+                    ? new KendaraanParkirResource($hasil->masukMenyusul->kendaraan)
+                    : null,
+            ])->response();
         }
 
-        return back()->with('status', "Check-out {$kendaraan->plat} berhasil. Biaya ".Format::rupiah($kendaraan->biaya).'.');
+        return back()->with('status', "Check-out {$hasil->kendaraan->plat} berhasil. Biaya ".Format::rupiah($hasil->kendaraan->biaya).'.');
+    }
+
+    private function jawabMenunggu(Request $request, Booking $booking): JsonResponse|RedirectResponse
+    {
+        $batas = $booking->menunggu_sejak->copy()->addMinutes(config('parkir.booking.tunggu_penghalang_menit'));
+        $pesan = "Slot {$booking->slot->kode_slot} masih ditempati kendaraan yang melewati waktu selesai. "
+            .'Booking menunggu sampai pukul '.Format::jam($batas).'. Bila kendaraan itu keluar sebelumnya, check-in otomatis.';
+
+        if ($request->expectsJson()) {
+            return response()->json(['data' => [
+                'status' => $booking->status->value,
+                'kode_booking' => $booking->kode_booking,
+                'menunggu_sampai' => $batas->toIso8601String(),
+            ], 'message' => $pesan], 202);
+        }
+
+        return back()->with('status', $pesan);
     }
 }

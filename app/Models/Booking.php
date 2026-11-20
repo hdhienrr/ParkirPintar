@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
@@ -68,6 +69,12 @@ class Booking extends Model
         return $this->status === StatusBooking::Dipesan && now()->lessThan($this->waktu_mulai);
     }
 
+    /** Kendaraan dari booking yang dibatalkan sistem belum tercatat keluar. */
+    public function menungguTandaiKeluar(): bool
+    {
+        return $this->status === StatusBooking::DibatalkanSistem && $this->waktu_keluar === null;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -76,6 +83,11 @@ class Booking extends Model
     public function slot(): BelongsTo
     {
         return $this->belongsTo(SlotParkir::class, 'slot_id');
+    }
+
+    public function kendaraan(): HasOne
+    {
+        return $this->hasOne(KendaraanParkir::class);
     }
 
     public function penyebab(): BelongsTo

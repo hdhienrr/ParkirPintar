@@ -22,6 +22,8 @@ class LayananBooking
 
     private const PANJANG_KODE = 8;
 
+    public function __construct(private readonly PenyegarStatusBooking $penyegar) {}
+
     /**
      * @throws BookingDitolak
      */
@@ -108,7 +110,7 @@ class LayananBooking
     {
         $this->segarkanStatus();
 
-        return Booking::where('user_id', $user->id)->with('slot.area')->latest('waktu_mulai')->get();
+        return Booking::where('user_id', $user->id)->with('slot.area', 'kendaraan')->latest('waktu_mulai')->get();
     }
 
     /**
@@ -134,19 +136,15 @@ class LayananBooking
     {
         $this->segarkanStatus();
 
-        return $booking->refresh()->load('slot.area', 'user');
+        return $booking->refresh()->load('slot.area', 'user', 'kendaraan');
     }
 
     /**
-     * Status yang bergantung pada waktu dihitung saat dibutuhkan, tanpa scheduler:
-     * booking yang tidak pernah dicoba check-in sampai batas terlambat menjadi hangus.
-     * Booking yang sedang menunggu tidak ikut, karena check-in sudah dicoba.
+     * Hangus dan pembatalan karena overstay dihitung saat dibutuhkan. Lihat PenyegarStatusBooking.
      */
     public function segarkanStatus(): void
     {
-        Booking::where('status', StatusBooking::Dipesan)
-            ->where('waktu_mulai', '<', now()->subMinutes(config('parkir.booking.toleransi_terlambat_menit')))
-            ->update(['status' => StatusBooking::Hangus]);
+        $this->penyegar->segarkan();
     }
 
     /**
