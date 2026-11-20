@@ -8,6 +8,7 @@
     const jenis = akar.dataset.jenis;
     const gambar = akar.dataset.gambar;
     const dasar = akar.dataset.dasar.replace(/\/$/, '');
+    const jedaSegarMs = Number(akar.dataset.segarDetik) * 1000;
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const $ = (id) => document.getElementById(id);
 
@@ -307,7 +308,7 @@
     // Segarkan denah berkala supaya tetap sama dengan database.
     setInterval(() => {
         if (!keadaan.sibuk && document.visibilityState === 'visible') muatDenah({ diam: true });
-    }, 20000);
+    }, jedaSegarMs);
 
     muatDenah();
 })();

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\JenisKendaraan;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BerandaController;
 use App\Http\Controllers\LaporanController;
@@ -8,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', BerandaController::class)->name('beranda');
 
-Route::get('/parkir/{jenis}', [ParkirController::class, 'halaman'])->whereIn('jenis', ['mobil', 'motor'])->name('parkir');
+Route::get('/parkir/{jenis}', [ParkirController::class, 'halaman'])->whereIn('jenis', JenisKendaraan::nilai())->name('parkir');
 Route::post('/checkin', [ParkirController::class, 'checkin'])->name('checkin');
 Route::post('/checkout/{id}', [ParkirController::class, 'checkout'])->whereNumber('id')->name('checkout');
 

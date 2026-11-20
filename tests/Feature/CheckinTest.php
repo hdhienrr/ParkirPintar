@@ -40,15 +40,22 @@ class CheckinTest extends TestCase
         $this->assertSame(1, KendaraanParkir::aktif()->count());
     }
 
-    public function test_plat_boleh_masuk_lagi_setelah_checkout_sebagai_transaksi_baru(): void
+    public function test_checkout_menghitung_durasi_dan_biaya(): void
     {
         $id = $this->checkin('A1-01', 'B 1234 XY')->json('data.id');
 
         $this->travel(90)->minutes();
+
         $this->postJson("/checkout/{$id}")
             ->assertOk()
             ->assertJsonPath('data.durasi_menit', 90)
             ->assertJsonPath('data.biaya', 8000);
+    }
+
+    public function test_plat_boleh_masuk_lagi_setelah_checkout_sebagai_transaksi_baru(): void
+    {
+        $id = $this->checkin('A1-01', 'B 1234 XY')->json('data.id');
+        $this->postJson("/checkout/{$id}")->assertOk();
 
         $this->checkin('A1-02', 'B 1234 XY')->assertCreated();
 
@@ -74,16 +81,8 @@ class CheckinTest extends TestCase
     public function test_area_penuh_ditolak(): void
     {
         $area = $this->slot('M1-01')->area;
-        $slot = $area->slot()->orderBy('id')->get();
 
-        foreach ($slot as $i => $s) {
-            KendaraanParkir::create([
-                'slot_id' => $s->id,
-                'plat' => sprintf('D %04d AB', $i + 1),
-                'jenis' => 'motor',
-                'waktu_masuk' => now(),
-            ]);
-        }
+        $area->slot->each(fn (SlotParkir $slot) => KendaraanParkir::factory()->for($slot, 'slot')->create());
 
         $this->checkin('M1-01', 'D 9999 ZZ', 'motor')
             ->assertStatus(409)

@@ -9,6 +9,7 @@
     @php
         $totalSlot = $area->sum('total_slot');
         $totalTerisi = $area->sum('terisi');
+        $slotPerZona = \App\Models\SlotParkir::SLOT_PER_ZONA;
     @endphp
 
     <div class="statistik">
@@ -98,8 +99,8 @@
                         </div>
                         <div class="isian">
                             <label for="jumlah_slot">Jumlah slot</label>
-                            <input id="jumlah_slot" name="jumlah_slot" type="number" min="18" max="216" step="18" value="{{ old('jumlah_slot', $diubah['total_slot']) }}" required>
-                            <span class="petunjuk">Kelipatan 18 (satu zona). Slot yang pernah dipakai tidak bisa dikurangi.</span>
+                            <input id="jumlah_slot" name="jumlah_slot" type="number" min="{{ $slotPerZona }}" max="{{ config('parkir.area.slot_maks') }}" step="{{ $slotPerZona }}" value="{{ old('jumlah_slot', $diubah['total_slot']) }}" required>
+                            <span class="petunjuk">Kelipatan {{ $slotPerZona }} (satu zona). Slot yang pernah dipakai tidak bisa dikurangi.</span>
                         </div>
                         <button class="tombol tombol-utama tombol-penuh">Simpan perubahan</button>
                     </form>
@@ -113,18 +114,19 @@
                         <div class="isian">
                             <label for="jenis">Jenis kendaraan</label>
                             <select id="jenis" name="jenis" required>
-                                <option value="mobil" @selected(old('jenis') === 'mobil')>Mobil</option>
-                                <option value="motor" @selected(old('jenis') === 'motor')>Motor</option>
+                                @foreach (\App\Enums\JenisKendaraan::cases() as $j)
+                                    <option value="{{ $j->value }}" @selected(old('jenis') === $j->value)>{{ $j->label() }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="isian">
                             <label for="lantai">Lantai</label>
-                            <input id="lantai" name="lantai" type="number" min="1" max="20" value="{{ old('lantai') }}" required>
+                            <input id="lantai" name="lantai" type="number" min="1" max="{{ config('parkir.area.lantai_maks') }}" value="{{ old('lantai') }}" required>
                         </div>
                         <div class="isian">
                             <label for="jumlah_slot">Jumlah slot</label>
-                            <input id="jumlah_slot" name="jumlah_slot" type="number" min="18" max="216" step="18" value="{{ old('jumlah_slot', 72) }}" required>
-                            <span class="petunjuk">Kelipatan 18 (satu zona = 6 blok × 3 slot). 72 = satu lantai standar.</span>
+                            <input id="jumlah_slot" name="jumlah_slot" type="number" min="{{ $slotPerZona }}" max="{{ config('parkir.area.slot_maks') }}" step="{{ $slotPerZona }}" value="{{ old('jumlah_slot', config('parkir.area.slot_bawaan')) }}" required>
+                            <span class="petunjuk">Kelipatan {{ $slotPerZona }} (satu zona = {{ \App\Models\SlotParkir::BLOK_PER_ZONA }} blok × {{ \App\Models\SlotParkir::SLOT_PER_BLOK }} slot). {{ config('parkir.area.slot_bawaan') }} = satu lantai standar.</span>
                         </div>
                         <button class="tombol tombol-utama tombol-penuh">Tambah area</button>
                     </form>

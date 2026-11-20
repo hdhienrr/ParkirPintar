@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\JenisKendaraan;
+use Database\Factories\SlotParkirFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,8 +14,8 @@ use Illuminate\Support\Str;
 
 class SlotParkir extends Model
 {
-    /** Awalan kode slot per jenis, misalnya A1-01 (mobil lantai 1) dan M2-72 (motor lantai 2). */
-    public const AWALAN = ['mobil' => 'A', 'motor' => 'M'];
+    /** @use HasFactory<SlotParkirFactory> */
+    use HasFactory;
 
     /** Denah: 1 blok = 3 slot, 1 zona = 3 blok ke samping x 2 blok ke bawah. */
     public const SLOT_PER_BLOK = 3;
@@ -31,7 +34,7 @@ class SlotParkir extends Model
 
     public static function buatKode(string $jenis, int $lantai, int $nomor): string
     {
-        return sprintf('%s%d-%02d', self::AWALAN[$jenis], $lantai, $nomor);
+        return sprintf('%s%d-%02d', JenisKendaraan::from($jenis)->awalan(), $lantai, $nomor);
     }
 
     /** Nomor urut slot di lantainya (A1-07 -> 7). */

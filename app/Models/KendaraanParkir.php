@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use Database\Factories\KendaraanParkirFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KendaraanParkir extends Model
 {
+    /** @use HasFactory<KendaraanParkirFactory> */
+    use HasFactory;
+
     protected $table = 'kendaraan_parkir';
 
     protected $fillable = [

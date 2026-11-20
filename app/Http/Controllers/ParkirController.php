@@ -2,50 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AreaParkir;
-use App\Models\KendaraanParkir;
+use App\Enums\JenisKendaraan;
+use App\Http\Requests\CheckinRequest;
+use App\Http\Resources\KendaraanParkirResource;
 use App\Models\Tarif;
+use App\Services\LayananArea;
 use App\Services\LayananParkir;
+use App\Support\Format;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ParkirController extends Controller
 {
-    public function __construct(private readonly LayananParkir $layanan) {}
+    public function __construct(
+        private readonly LayananParkir $layanan,
+        private readonly LayananArea $layananArea,
+    ) {}
 
     /**
      * Halaman check-in dan check-out untuk satu jenis kendaraan, dengan tab lantai dan denah slot.
      */
     public function halaman(Request $request, string $jenis): View
     {
-        $area = AreaParkir::denganRingkasan()->jenis($jenis)->orderBy('nama')->get()->map->ringkasan();
-        $dipilih = $area->firstWhere('id', (int) $request->query('area')) ?? $area->first();
+        $area = $this->layananArea->daftarRingkasan($jenis);
 
         return view('parkir', [
-            'jenis' => $jenis,
+            'jenis' => JenisKendaraan::from($jenis),
             'area' => $area,
-            'areaDipilih' => $dipilih,
+            'areaDipilih' => $area->firstWhere('id', (int) $request->query('area')) ?? $area->first(),
             'tarif' => Tarif::where('jenis', $jenis)->first(),
         ]);
     }
 
-    public function checkin(Request $request): JsonResponse|RedirectResponse
+    public function checkin(CheckinRequest $request): JsonResponse|RedirectResponse
     {
-        $data = $request->validate([
-            'slot_id' => ['required', 'integer', 'exists:slot_parkir,id'],
-            'plat' => ['required', 'string', 'max:15', 'regex:/^[A-Za-z]{1,2}\s*\d{1,4}\s*[A-Za-z]{0,3}$/'],
-            'jenis' => ['required', Rule::in(['mobil', 'motor'])],
-        ], [
-            'plat.regex' => 'Format plat nomor tidak valid, contoh: B 1234 XY.',
-        ]);
-
+        $data = $request->validated();
         $kendaraan = $this->layanan->checkIn((int) $data['slot_id'], $data['plat'], $data['jenis']);
 
         if ($request->expectsJson()) {
-            return response()->json(['data' => $this->ringkas($kendaraan)], 201);
+            return (new KendaraanParkirResource($kendaraan))->response();
         }
 
         return back()->with('status', "Check-in {$kendaraan->plat} di slot {$kendaraan->slot->kode_slot} berhasil.");
@@ -56,26 +53,9 @@ class ParkirController extends Controller
         $kendaraan = $this->layanan->checkOut($id);
 
         if ($request->expectsJson()) {
-            return response()->json(['data' => $this->ringkas($kendaraan)]);
+            return (new KendaraanParkirResource($kendaraan))->response();
         }
 
-        return back()->with('status', "Check-out {$kendaraan->plat} berhasil. Biaya Rp".number_format($kendaraan->biaya, 0, ',', '.').'.');
-    }
-
-    private function ringkas(KendaraanParkir $kendaraan): array
-    {
-        $kendaraan->loadMissing('slot.area');
-
-        return [
-            'id' => $kendaraan->id,
-            'plat' => $kendaraan->plat,
-            'jenis' => $kendaraan->jenis,
-            'area' => $kendaraan->slot->area->nama,
-            'kode_slot' => $kendaraan->slot->kode_slot,
-            'waktu_masuk' => $kendaraan->waktu_masuk->toIso8601String(),
-            'waktu_keluar' => $kendaraan->waktu_keluar?->toIso8601String(),
-            'durasi_menit' => $kendaraan->durasi_menit,
-            'biaya' => $kendaraan->biaya,
-        ];
+        return back()->with('status', "Check-out {$kendaraan->plat} berhasil. Biaya ".Format::rupiah($kendaraan->biaya).'.');
     }
 }

@@ -66,7 +66,7 @@
                         <div class="tarif-alur">
                             <div class="tarif-tahap tarif-gratis">
                                 <span class="tarif-titik" aria-hidden="true"></span>
-                                <span class="tarif-waktu">15 menit pertama</span>
+                                <span class="tarif-waktu">{{ \App\Services\KalkulatorTarif::MENIT_GRATIS }} menit pertama</span>
                                 <strong>Gratis</strong>
                             </div>
                             <div class="tarif-tahap">
@@ -83,7 +83,7 @@
 
                         <p class="tarif-catatan">
                             Sehari paling banyak <b>{{ Format::rupiah($t->maks_harian) }}</b>.
-                            Contohnya, parkir 2 jam 30 menit cukup bayar <b>{{ Format::rupiah($contohBiaya[$jenis] ?? null) }}</b>.
+                            Contohnya, parkir {{ Format::durasi($menitContoh) }} cukup bayar <b>{{ Format::rupiah($contohBiaya[$jenis] ?? null) }}</b>.
                         </p>
                     </article>
                 @endforeach

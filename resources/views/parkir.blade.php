@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@php($namaJenis = ucfirst($jenis))
+@php($namaJenis = $jenis->label())
 
 @section('label', 'Check-in & check-out')
 @section('judul', "Parkir {$namaJenis}")
@@ -16,16 +16,17 @@
 @section('isi')
     @if ($area->isEmpty())
         <div class="panel kosong-data">
-            Belum ada area untuk {{ $jenis }}. <a href="{{ route('areas.index') }}">Tambah area</a> dulu.
+            Belum ada area untuk {{ $jenis->value }}. <a href="{{ route('areas.index') }}">Tambah area</a> dulu.
         </div>
     @else
         <div
             id="halaman-parkir"
             class="dua-kolom"
-            data-jenis="{{ $jenis }}"
+            data-jenis="{{ $jenis->value }}"
             data-dasar="{{ url('/') }}"
             data-area="{{ $areaDipilih['id'] }}"
-            data-gambar="{{ asset($jenis === 'mobil' ? 'images/car-top.png' : 'images/motor-top.png') }}"
+            data-gambar="{{ asset($jenis->gambar()) }}"
+            data-segar-detik="{{ config('parkir.denah.segar_detik') }}"
         >
             <section class="panel" aria-labelledby="judul-denah">
                 <div class="panel-kepala">
@@ -104,7 +105,7 @@
 
                     @if ($tarif)
                         <div class="info-tarif">
-                            Tarif {{ $jenis }}: 15 mnt pertama gratis · jam pertama {{ \App\Support\Format::rupiah($tarif->tarif_jam_pertama) }}
+                            Tarif {{ $jenis->value }}: {{ \App\Services\KalkulatorTarif::MENIT_GRATIS }} mnt pertama gratis · jam pertama {{ \App\Support\Format::rupiah($tarif->tarif_jam_pertama) }}
                             · berikutnya {{ \App\Support\Format::rupiah($tarif->tarif_jam_berikutnya) }}/jam
                             · maks {{ \App\Support\Format::rupiah($tarif->maks_harian) }}/hari
                         </div>
@@ -116,5 +117,5 @@
 @endsection
 
 @push('skrip')
-    <script src="{{ asset('js/parkir.js') }}?v=4" defer></script>
+    <script src="{{ asset('js/parkir.js') }}?v=5" defer></script>
 @endpush
