@@ -14,18 +14,18 @@ class AreaParkirSeeder extends Seeder
     public const SLOT_PER_LANTAI = 72;
 
     /**
-     * jenis => [awalan kode slot, jumlah lantai]
+     * jenis => jumlah lantai
      */
-    private const AREA = [
-        'mobil' => ['A', 3],
-        'motor' => ['M', 2],
+    private const LANTAI = [
+        'mobil' => 3,
+        'motor' => 2,
     ];
 
     public function run(): void
     {
         $sekarang = now();
 
-        foreach (self::AREA as $jenis => [$awalan, $jumlahLantai]) {
+        foreach (self::LANTAI as $jenis => $jumlahLantai) {
             for ($lantai = 1; $lantai <= $jumlahLantai; $lantai++) {
                 $area = AreaParkir::firstOrCreate(['nama' => ucfirst($jenis).' Lantai '.$lantai]);
 
@@ -33,7 +33,7 @@ class AreaParkirSeeder extends Seeder
                 for ($nomor = 1; $nomor <= self::SLOT_PER_LANTAI; $nomor++) {
                     $slot[] = [
                         'area_id' => $area->id,
-                        'kode_slot' => sprintf('%s%d-%02d', $awalan, $lantai, $nomor),
+                        'kode_slot' => SlotParkir::buatKode($jenis, $lantai, $nomor),
                         'jenis' => $jenis,
                         'created_at' => $sekarang,
                         'updated_at' => $sekarang,

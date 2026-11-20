@@ -2,16 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AreaParkir;
 use App\Models\KendaraanParkir;
+use App\Models\Tarif;
 use App\Services\LayananParkir;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class ParkirController extends Controller
 {
     public function __construct(private readonly LayananParkir $layanan) {}
+
+    /**
+     * Halaman check-in dan check-out untuk satu jenis kendaraan, dengan tab lantai dan denah slot.
+     */
+    public function halaman(Request $request, string $jenis): View
+    {
+        $area = AreaParkir::denganRingkasan()->jenis($jenis)->orderBy('nama')->get()->map->ringkasan();
+        $dipilih = $area->firstWhere('id', (int) $request->query('area')) ?? $area->first();
+
+        return view('parkir', [
+            'jenis' => $jenis,
+            'area' => $area,
+            'areaDipilih' => $dipilih,
+            'tarif' => Tarif::where('jenis', $jenis)->first(),
+        ]);
+    }
 
     public function checkin(Request $request): JsonResponse|RedirectResponse
     {
