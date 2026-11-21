@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StatusBooking;
 use App\Models\Booking;
 use App\Models\SlotParkir;
 use App\Models\User;
@@ -54,7 +55,7 @@ class HalamanAdminTest extends TestCase
     {
         $dipesan = $this->booking('A1-01', '2026-11-23 09:00');
         $dibatalkan = $this->booking('A1-02', '2026-11-23 09:00');
-        $dibatalkan->forceFill(['status' => 'dibatalkan'])->save();
+        $dibatalkan->forceFill(['status' => StatusBooking::Dibatalkan])->save();
 
         $this->get('/admin/booking?status=dibatalkan')
             ->assertSee($dibatalkan->kode_booking)

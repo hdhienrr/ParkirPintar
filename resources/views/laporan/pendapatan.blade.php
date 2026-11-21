@@ -13,10 +13,11 @@
     @include('partials.pesan')
 
     <div class="statistik">
-        <div class="hijau"><span class="label">Total pendapatan</span><strong>{{ Format::rupiah($total['pendapatan']) }}</strong></div>
+        <div class="hijau"><span class="label">Pendapatan parkir</span><strong>{{ Format::rupiah($total['pendapatan']) }}</strong></div>
         <div><span class="label">Transaksi</span><strong>{{ $total['transaksi'] }}</strong></div>
         <div><span class="label">Mobil</span><strong>{{ Format::rupiah($total['mobil']) }}</strong></div>
         <div><span class="label">Motor</span><strong>{{ Format::rupiah($total['motor']) }}</strong></div>
+        <div><span class="label">Denda (terpisah)</span><strong>{{ Format::rupiah($denda['total']) }}</strong></div>
     </div>
 
     <section class="panel">
@@ -58,18 +59,56 @@
                     <tr><td colspan="5" class="kosong-data">Belum ada kendaraan yang check-out pada rentang tanggal ini.</td></tr>
                 @endforelse
                 </tbody>
-                @if ($harian->isNotEmpty())
+                @if ($harian->isNotEmpty() || $denda['total'] > 0)
                     <tfoot>
-                    <tr>
-                        <td>Total</td>
-                        <td class="kanan angka">{{ $total['transaksi'] }}</td>
-                        <td class="kanan angka">{{ Format::rupiah($total['mobil']) }}</td>
-                        <td class="kanan angka">{{ Format::rupiah($total['motor']) }}</td>
-                        <td class="kanan angka">{{ Format::rupiah($total['pendapatan']) }}</td>
+                    @if ($harian->isNotEmpty())
+                        <tr>
+                            <td>Total</td>
+                            <td class="kanan angka">{{ $total['transaksi'] }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($total['mobil']) }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($total['motor']) }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($total['pendapatan']) }}</td>
+                        </tr>
+                    @endif
+                    {{-- Denda dicatat terpisah, tidak masuk ke pendapatan parkir di atas. --}}
+                    <tr class="baris-denda">
+                        <td colspan="4">Denda melewati waktu (terpisah dari pendapatan parkir)</td>
+                        <td class="kanan angka">{{ Format::rupiah($denda['total']) }}</td>
                     </tr>
                     </tfoot>
                 @endif
             </table>
         </div>
     </section>
+
+    @if ($denda['harian']->isNotEmpty())
+        <section class="panel panel-denda">
+            <div class="panel-kepala">
+                <h2>Denda per hari</h2>
+                <span class="label" style="margin:0">Tidak termasuk pendapatan parkir</span>
+            </div>
+            <div class="tabel-bungkus">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th class="kanan">Kendaraan terlambat keluar</th>
+                        <th class="kanan">Booking dibatalkan sistem</th>
+                        <th class="kanan">Jumlah denda</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($denda['harian'] as $d)
+                        <tr>
+                            <td class="angka">{{ Carbon::parse($d['tanggal'])->locale('id')->translatedFormat('D, d M Y') }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($d['pelaku']) }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($d['korban']) }}</td>
+                            <td class="kanan angka">{{ Format::rupiah($d['jumlah']) }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    @endif
 @endsection

@@ -30,7 +30,7 @@ class Booking extends Model
     ];
 
     protected $attributes = [
-        'status' => 'dipesan',
+        'status' => StatusBooking::Dipesan->value,
         'denda' => 0,
     ];
 

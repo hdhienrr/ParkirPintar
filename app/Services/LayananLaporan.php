@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\JenisKendaraan;
+use App\Models\Booking;
 use App\Models\KendaraanParkir;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
@@ -27,7 +28,8 @@ class LayananLaporan
     }
 
     /**
-     * Pendapatan per hari check-out, dipisah per jenis kendaraan.
+     * Pendapatan parkir per hari check-out, dipisah per jenis kendaraan.
+     * Denda dilaporkan terpisah di kunci 'denda' dan tidak ikut dijumlahkan ke pendapatan parkir.
      */
     public function pendapatan(CarbonImmutable $dari, CarbonImmutable $sampai): array
     {
@@ -49,6 +51,51 @@ class LayananLaporan
                 ...$this->angkaPerJenis(fn (string $jenis) => $harian->sum($jenis)),
                 'pendapatan' => $harian->sum('pendapatan'),
             ],
+            'denda' => $this->dendaHarian($dari, $sampai),
+        ];
+    }
+
+    /**
+     * Denda per hari dibayar: denda pelaku saat kendaraannya check-out,
+     * denda korban saat kendaraannya ditandai keluar.
+     */
+    private function dendaHarian(CarbonImmutable $dari, CarbonImmutable $sampai): array
+    {
+        $rentang = [$dari->startOfDay(), $sampai->endOfDay()];
+
+        $pelaku = KendaraanParkir::query()
+            ->join('booking', 'booking.id', '=', 'kendaraan_parkir.booking_id')
+            ->whereBetween('kendaraan_parkir.waktu_keluar', $rentang)
+            ->where('booking.denda', '>', 0)
+            ->selectRaw('DATE(kendaraan_parkir.waktu_keluar) AS tanggal, SUM(booking.denda) AS jumlah')
+            ->groupByRaw('DATE(kendaraan_parkir.waktu_keluar)')
+            ->toBase()
+            ->pluck('jumlah', 'tanggal');
+
+        $korban = Booking::query()
+            ->whereBetween('waktu_keluar', $rentang)
+            ->where('denda', '>', 0)
+            ->selectRaw('DATE(waktu_keluar) AS tanggal, SUM(denda) AS jumlah')
+            ->groupByRaw('DATE(waktu_keluar)')
+            ->toBase()
+            ->pluck('jumlah', 'tanggal');
+
+        $harian = $pelaku->keys()->merge($korban->keys())->unique()->sort()->values()
+            ->map(function (string $tanggal) use ($pelaku, $korban) {
+                $dendaPelaku = (int) ($pelaku[$tanggal] ?? 0);
+                $dendaKorban = (int) ($korban[$tanggal] ?? 0);
+
+                return [
+                    'tanggal' => $tanggal,
+                    'pelaku' => $dendaPelaku,
+                    'korban' => $dendaKorban,
+                    'jumlah' => $dendaPelaku + $dendaKorban,
+                ];
+            });
+
+        return [
+            'harian' => $harian,
+            'total' => $harian->sum('jumlah'),
         ];
     }
 

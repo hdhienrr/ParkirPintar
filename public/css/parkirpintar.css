@@ -511,6 +511,11 @@ tfoot td { border-top: 1px solid var(--garis); border-bottom: 0; font-weight: 70
 .label-merah { display: inline-block; margin-left: 6px; padding: 3px 8px; border-radius: 999px; background: var(--merah); color: #fff; font-size: 11px; font-weight: 700; }
 tbody tr.baris-merah td { background: var(--merah-bg); }
 
+/* Laporan pendapatan: denda dicatat terpisah dari pendapatan parkir */
+tfoot tr.baris-denda td { background: var(--panel); color: var(--redup); font-weight: 600; }
+tfoot tr + tr.baris-denda td { border-top: 0; }
+.panel-denda { margin-top: 20px; }
+
 /* Daftar booking hari ini di formulir check-in petugas */
 .daftar-checkin { display: grid; gap: 6px; max-height: 260px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .daftar-checkin button {
