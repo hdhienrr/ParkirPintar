@@ -79,7 +79,7 @@
                                 @forelse ($siapCheckin as $b)
                                     <li data-kode="{{ $b->kode_booking }}">
                                         <button type="button" data-kode="{{ $b->kode_booking }}">
-                                            <span class="mono">{{ Format::jam($b->waktu_mulai) }}</span>
+                                            <span class="angka">{{ Format::jam($b->waktu_mulai) }}</span>
                                             <span class="mono">{{ $b->plat }}</span>
                                             <span class="mono">{{ $b->slot->kode_slot }}</span>
                                             @if ($b->status === \App\Enums\StatusBooking::Menunggu)
@@ -125,5 +125,5 @@
 
 @push('skrip')
     <script src="{{ asset('js/denah.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/parkir.js') }}?v=9" defer></script>
+    <script src="{{ asset('js/parkir.js') }}?v=10" defer></script>
 @endpush

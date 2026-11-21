@@ -59,6 +59,11 @@ return [
         'keluar_tanpa_denda_menit' => 15,
     ],
 
+    'peraturan' => [
+        // Jam booking contoh untuk garis waktu kedatangan di halaman peraturan.
+        'jam_contoh' => 8,
+    ],
+
     // Akun admin pertama, dibuat oleh AdminSeeder. Nilainya hanya dari .env.
     'admin' => [
         'nama' => env('ADMIN_NAME', 'Admin ParkirPintar'),

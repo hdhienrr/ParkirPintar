@@ -198,8 +198,8 @@
             const menyusul = isi.masuk_menyusul;
             tampilkanPesan('sukses',
                 `Check-out <b class="mono">${teksAman(data.plat)}</b> dari ${teksAman(data.kode_slot)} berhasil.`
-                + `<br>Durasi <b class="mono">${durasi(data.durasi_menit)}</b> · Biaya <b class="mono">${rupiah(data.biaya)}</b>`
-                + (data.denda > 0 ? ` · Denda <b class="mono">${rupiah(data.denda)}</b> · Total <b class="mono">${rupiah(data.total)}</b>` : '')
+                + `<br>Durasi <b class="angka">${durasi(data.durasi_menit)}</b> · Biaya <b class="angka">${rupiah(data.biaya)}</b>`
+                + (data.denda > 0 ? ` · Denda <b class="angka">${rupiah(data.denda)}</b> · Total <b class="angka">${rupiah(data.total)}</b>` : '')
                 + tautanKarcis(data)
                 + (menyusul ? `<br>Booking yang menunggu langsung check-in: <b class="mono">${teksAman(menyusul.plat)}</b>.${tautanKarcis(menyusul)}` : ''));
             keadaan.dipilih = null;

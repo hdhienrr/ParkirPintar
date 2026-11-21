@@ -87,8 +87,18 @@ class BookingAksesTest extends TestCase
         Tarif::where('jenis', 'motor')->update(['tarif_jam_pertama' => 2500, 'denda_korban_per_jam' => 6000]);
 
         $this->get('/peraturan')
-            ->assertSee('Rp2.500 jam pertama')
-            ->assertSee('Rp6.000')
-            ->assertSee('Rp100.000');
+            ->assertSee('Rp2.500')
+            ->assertDontSee('Rp2.000')
+            ->assertSee('Rp6.000/jam')
+            ->assertSee('Rp100.000/hari');
+    }
+
+    public function test_garis_waktu_kedatangan_mengikuti_konfigurasi(): void
+    {
+        config(['parkir.peraturan.jam_contoh' => 9, 'parkir.booking.toleransi_terlambat_menit' => 20]);
+
+        $this->get('/peraturan')
+            ->assertSeeInOrder(['08.45', '09.00', '09.20', '09.21'])
+            ->assertSee('Batas terlambat (20 menit sesudah)');
     }
 }

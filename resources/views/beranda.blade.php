@@ -65,35 +65,10 @@
             </div>
             <div class="tarif-grid">
                 @foreach ($tarif as $jenis => $t)
-                    <article class="tarif" data-muncul aria-labelledby="tarif-{{ $jenis }}">
-                        <div class="tarif-kepala">
-                            <h3 id="tarif-{{ $jenis }}">Parkir {{ $jenis }}</h3>
-                            <p>Dihitung per jam, pecahan jam dibulatkan ke atas.</p>
-                        </div>
-
-                        <div class="tarif-alur">
-                            <div class="tarif-tahap tarif-gratis">
-                                <span class="tarif-titik" aria-hidden="true"></span>
-                                <span class="tarif-waktu">{{ \App\Services\KalkulatorTarif::MENIT_GRATIS }} menit pertama</span>
-                                <strong>Gratis</strong>
-                            </div>
-                            <div class="tarif-tahap">
-                                <span class="tarif-titik" aria-hidden="true"></span>
-                                <span class="tarif-waktu">Jam pertama</span>
-                                <strong>{{ Format::rupiah($t->tarif_jam_pertama) }}</strong>
-                            </div>
-                            <div class="tarif-tahap">
-                                <span class="tarif-titik" aria-hidden="true"></span>
-                                <span class="tarif-waktu">Tiap jam berikutnya</span>
-                                <strong>+{{ Format::rupiah($t->tarif_jam_berikutnya) }}</strong>
-                            </div>
-                        </div>
-
-                        <p class="tarif-catatan">
-                            Sehari paling banyak <b>{{ Format::rupiah($t->maks_harian) }}</b>.
-                            Contohnya, parkir {{ Format::durasi($menitContoh) }} cukup bayar <b>{{ Format::rupiah($contohBiaya[$jenis] ?? null) }}</b>.
-                        </p>
-                    </article>
+                    @include('partials.kartu-tarif', [
+                        'tarif' => $t,
+                        'catatan' => 'Contohnya, parkir '.e(Format::durasi($menitContoh)).' cukup bayar <b>'.e(Format::rupiah($contohBiaya[$jenis] ?? null)).'</b>.',
+                    ])
                 @endforeach
             </div>
         </section>

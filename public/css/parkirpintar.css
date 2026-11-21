@@ -51,6 +51,7 @@ body {
 a { color: inherit; }
 img { max-width: 100%; }
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
+/* Font mono hanya untuk kode (kode booking, plat, kode slot, nomor karcis). Angka memakai .angka. */
 .mono { font-family: var(--mono); }
 .angka { font-variant-numeric: tabular-nums; }
 [hidden] { display: none !important; }
@@ -536,10 +537,84 @@ tfoot tr + tr.baris-denda td { border-top: 0; }
     .struk { width: 100%; padding: 0; border: 0; }
 }
 
-/* Peraturan */
-.peraturan { display: grid; gap: 16px; max-width: 820px; }
-.peraturan h2 { margin-bottom: 10px; font-size: 18px; }
-.peraturan ul { display: grid; gap: 8px; margin: 0; padding-left: 20px; color: var(--redup); line-height: 1.6; }
+/* Peraturan: angka besar, garis waktu kedatangan, tarif, dan denda */
+.peraturan-pengantar { max-width: 620px; margin: -8px 0 28px; color: var(--redup); font-size: 16px; line-height: 1.6; }
+
+.fakta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 40px; }
+.fakta > div { padding: 20px; border: 1px solid var(--garis); border-radius: 16px; background: var(--panel); }
+.fakta span { display: block; color: var(--samar); font-size: 13px; }
+.fakta strong { display: block; margin-top: 6px; font-size: 26px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.fakta small { display: block; margin-top: 4px; color: var(--redup); font-size: 12px; }
+.fakta-sorot strong { color: var(--aksen); }
+
+.peraturan-bagian { margin-bottom: 40px; }
+.peraturan-bagian > h2 { margin: 0 0 6px; font-size: 22px; }
+.peraturan-bagian > p { margin: 0 0 18px; color: var(--redup); }
+
+/* Garis hijau = masih boleh check-in, merah = hangus. Titik berada di awal tiap kolom. */
+.garis-waktu {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 26px 24px 22px;
+    border: 1px solid var(--garis);
+    border-radius: 16px;
+    background: var(--panel);
+    list-style: none;
+}
+.garis-waktu::before {
+    content: "";
+    position: absolute;
+    top: 40px;
+    left: 24px;
+    right: 24px;
+    height: 6px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #c9e7d4 0 51%, var(--merah-bg) 51% 100%);
+}
+.garis-waktu li { position: relative; padding: 30px 12px 0 0; }
+.garis-waktu li::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    border: 3px solid var(--garis-2);
+    border-radius: 50%;
+    background: #fff;
+}
+.garis-waktu .titik-aman::before { border-color: var(--hijau); }
+.garis-waktu .titik-mulai::before { border-color: var(--utama); background: var(--utama); }
+.garis-waktu .titik-hangus::before { border-color: var(--merah); }
+.garis-waktu b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.garis-waktu span { color: var(--redup); font-size: 13px; }
+
+.kartu-denda-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.kartu-denda { padding: 22px; border: 1px solid var(--garis); border-radius: 16px; background: var(--panel); }
+.kartu-denda-pelaku { border-color: #f3c3c5; }
+.kartu-denda h3 { margin: 0 0 6px; font-size: 17px; }
+.kartu-denda p { margin: 0 0 14px; color: var(--redup); line-height: 1.55; }
+.angka-denda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.angka-denda > div { padding: 12px 14px; border-radius: 12px; background: var(--panel-2); }
+.angka-denda span { color: var(--samar); font-size: 12px; text-transform: capitalize; }
+.angka-denda strong { display: block; font-size: 18px; font-variant-numeric: tabular-nums; }
+.angka-denda small { color: var(--redup); font-size: 12px; }
+
+.catatan-akun { margin: 0; padding: 18px 22px; border-radius: 16px; background: var(--pilih-bg); line-height: 1.6; }
+.catatan-akun b { color: var(--aksen); }
+
+@media (max-width: 900px) {
+    .fakta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kartu-denda-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+    .fakta > div { padding: 16px; }
+    .fakta strong { font-size: 20px; }
+    .garis-waktu { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px; }
+    .garis-waktu::before { display: none; }
+}
 
 /* ---------- Landing ---------- */
 .hero {

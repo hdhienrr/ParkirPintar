@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=32">
+    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=35">
     @stack('kepala')
 </head>
 <body class="@yield('kelas-body')">
