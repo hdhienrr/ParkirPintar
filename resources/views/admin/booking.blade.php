@@ -5,6 +5,10 @@
 @section('label', 'Admin')
 @section('judul', 'Semua booking')
 
+@section('aksi-judul')
+    @include('admin._tab-booking')
+@endsection
+
 @section('isi')
     @include('partials.pesan')
 

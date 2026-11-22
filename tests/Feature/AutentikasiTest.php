@@ -34,7 +34,7 @@ class AutentikasiTest extends TestCase
 
     public function test_daftar_membuat_akun_user_dan_langsung_masuk(): void
     {
-        $this->post('/register', $this->dataDaftar())->assertRedirect(route('booking.index'));
+        $this->post('/register', $this->dataDaftar())->assertRedirect(route('booking.create'));
 
         $user = User::where('email', 'budi@contoh.test')->firstOrFail();
         $this->assertSame(Peran::User, $user->role);
@@ -67,17 +67,17 @@ class AutentikasiTest extends TestCase
     {
         $user = User::factory()->create(['password' => self::PASSWORD]);
 
-        $this->post('/login', ['email' => $user->email, 'password' => self::PASSWORD])->assertRedirect(route('booking.index'));
+        $this->post('/login', ['email' => $user->email, 'password' => self::PASSWORD])->assertRedirect(route('booking.create'));
 
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_admin_diarahkan_ke_halaman_parkir_setelah_masuk(): void
+    public function test_admin_diarahkan_ke_halaman_semua_booking_setelah_masuk(): void
     {
         $admin = User::factory()->admin()->create(['password' => self::PASSWORD]);
 
         $this->post('/login', ['email' => $admin->email, 'password' => self::PASSWORD])
-            ->assertRedirect(route('parkir', 'mobil'));
+            ->assertRedirect(route('admin.booking.index'));
     }
 
     public function test_masuk_dengan_password_salah_ditolak(): void

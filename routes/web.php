@@ -2,7 +2,6 @@
 
 use App\Enums\JenisKendaraan;
 use App\Http\Controllers\AdminBookingController;
-use App\Http\Controllers\AdminKendaraanController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\BerandaController;
 use App\Http\Controllers\BookingController;
@@ -55,10 +54,10 @@ Route::middleware(['auth', 'can:admin'])->group(function () {
     Route::post('/checkout/{id}', [ParkirController::class, 'checkout'])->whereNumber('id')->name('checkout');
 
     Route::get('/admin/booking', [AdminBookingController::class, 'index'])->name('admin.booking.index');
+    Route::get('/admin/booking/sedang-parkir', [AdminBookingController::class, 'sedangParkir'])->name('admin.booking.parkir');
     Route::get('/admin/booking/{booking}/pindah', [AdminBookingController::class, 'formPindah'])->name('admin.booking.pindah.form');
     Route::post('/admin/booking/{booking}/pindah', [AdminBookingController::class, 'pindah'])->name('admin.booking.pindah');
     Route::post('/admin/booking/{booking}/keluar', [AdminBookingController::class, 'keluar'])->name('admin.booking.keluar');
-    Route::get('/admin/kendaraan', [AdminKendaraanController::class, 'index'])->name('admin.kendaraan.index');
 
     Route::get('/areas', [AreaController::class, 'index'])->name('areas.index');
     Route::post('/areas', [AreaController::class, 'store'])->name('areas.store');

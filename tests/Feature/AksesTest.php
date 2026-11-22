@@ -26,7 +26,7 @@ class AksesTest extends TestCase
             'laporan okupansi' => ['/reports/occupancy'],
             'laporan pendapatan' => ['/reports/revenue'],
             'semua booking' => ['/admin/booking'],
-            'kendaraan sedang parkir' => ['/admin/kendaraan'],
+            'booking sedang parkir' => ['/admin/booking/sedang-parkir'],
         ];
     }
 

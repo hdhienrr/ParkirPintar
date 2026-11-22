@@ -13,7 +13,7 @@
     const el = {
         form: $('form-booking'),
         plat: $('plat'),
-        jenis: $('jenis'),
+        pilihanJenis: [...document.querySelectorAll('input[name="jenis"]')],
         tanggal: $('tanggal'),
         jam: $('jam-mulai'), // bukan 'jam': id itu dipakai jam digital di navbar
         durasi: $('durasi'),
@@ -33,7 +33,8 @@
         permintaan: 0,
     };
 
-    const gambar = () => akar.dataset[el.jenis.value === 'motor' ? 'gambarMotor' : 'gambarMobil'];
+    const jenis = () => el.pilihanJenis.find((r) => r.checked)?.value;
+    const gambar = () => akar.dataset[jenis() === 'motor' ? 'gambarMotor' : 'gambarMobil'];
     const areaAktif = () => keadaan.area.find((a) => a.id === keadaan.areaId) || null;
     const slotDipilih = () => {
         for (const a of keadaan.area) {
@@ -53,11 +54,23 @@
         }
     }
 
+    function tungguJenis() {
+        el.tab.replaceChildren();
+        el.ringkasan.textContent = '';
+        el.denah.innerHTML = '<div class="denah-status">Pilih jenis kendaraan (Mobil atau Motor) di samping untuk melihat denah.</div>';
+        perbaruiPanel();
+    }
+
     async function muatKetersediaan() {
+        // Denah baru dimuat setelah jenis kendaraan dipilih.
+        if (!jenis()) {
+            tungguJenis();
+            return;
+        }
         batasiDurasi();
         const nomor = ++keadaan.permintaan;
         const query = new URLSearchParams({
-            jenis: el.jenis.value,
+            jenis: jenis(),
             tanggal: el.tanggal.value,
             jam: el.jam.value,
             durasi: el.durasi.value,
@@ -148,11 +161,15 @@
     }
 
     el.plat.addEventListener('input', perbaruiPanel);
-    for (const isian of [el.jenis, el.tanggal, el.jam, el.durasi]) {
-        isian.addEventListener('change', () => {
-            if (isian === el.jenis) keadaan.dipilih = null;
+    // Ganti jenis kendaraan: slot pilihan lama (jenis lain) dilepas, denah dimuat ulang.
+    for (const pilihan of el.pilihanJenis) {
+        pilihan.addEventListener('change', () => {
+            keadaan.dipilih = null;
             muatKetersediaan();
         });
+    }
+    for (const isian of [el.tanggal, el.jam, el.durasi]) {
+        isian.addEventListener('change', muatKetersediaan);
     }
     el.form.addEventListener('submit', () => { el.tombol.disabled = true; });
 

@@ -15,7 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Halaman dan aksi admin atas booking: daftar semua booking, pemindahan slot, dan tandai keluar.
+ * Halaman dan aksi admin atas booking: daftar per tanggal, kendaraan yang sedang parkir,
+ * pemindahan slot, dan tandai keluar.
  */
 class AdminBookingController extends Controller
 {
@@ -33,6 +34,12 @@ class AdminBookingController extends Controller
             'statusDipilih' => $request->status(),
             'semuaStatus' => StatusBooking::cases(),
         ]);
+    }
+
+    /** Tab "Sedang parkir": semua kendaraan di dalam, dari tanggal mana pun, termasuk yang tanpa booking. */
+    public function sedangParkir(): View
+    {
+        return view('admin.sedang-parkir', ['daftar' => $this->layananKarcis->kendaraanDiDalam()]);
     }
 
     public function formPindah(Booking $booking): View

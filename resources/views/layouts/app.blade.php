@@ -8,7 +8,30 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=35">
+    <link rel="stylesheet" href="{{ asset('css/parkirpintar.css') }}?v=44">
+    <script>
+        // Transisi halaman hanya antara beranda/peraturan dan masuk/daftar. Halaman lain berpindah seperti biasa.
+        // Dijalankan sebelum halaman pertama kali digambar.
+        addEventListener('pagereveal', (e) => {
+            if (!e.viewTransition) return;
+            const halamanAkun = @json([route('login'), route('register')]);
+            const halamanTransisi = [...halamanAkun, ...@json([route('beranda'), route('peraturan')])];
+            const tanpaQuery = (url) => url.split(/[?#]/)[0].replace(/\/$/, '');
+            const ikut = (url) => halamanTransisi.some((h) => tanpaQuery(h) === tanpaQuery(url));
+            const asal = window.navigation?.activation?.from?.url;
+            if (!asal || !ikut(asal) || !ikut(location.href)) {
+                e.viewTransition.skipTransition();
+                return;
+            }
+            // Jenis transisi menentukan urutan gerak di CSS: masuk ke halaman akun, keluar dari halaman akun,
+            // atau berpindah antara masuk dan daftar.
+            const halamanIniAkun = (url) => halamanAkun.some((h) => tanpaQuery(h) === tanpaQuery(url));
+            const keAkun = halamanIniAkun(location.href);
+            const dariAkun = halamanIniAkun(asal);
+            e.viewTransition.types?.add(keAkun && dariAkun ? 'antar-akun' : (keAkun ? 'ke-akun' : 'dari-akun'));
+            document.documentElement.classList.add('lewat-transisi');
+        });
+    </script>
     @stack('kepala')
 </head>
 <body class="@yield('kelas-body')">
@@ -29,7 +52,6 @@
             <a href="{{ route('parkir', 'mobil') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'mobil'])>Parkir Mobil</a>
             <a href="{{ route('parkir', 'motor') }}" @class(['aktif' => $rute === 'parkir' && $jenisAktif === 'motor'])>Parkir Motor</a>
             <a href="{{ route('admin.booking.index') }}" @class(['aktif' => str_starts_with($rute, 'admin.booking.')])>Booking</a>
-            <a href="{{ route('admin.kendaraan.index') }}" @class(['aktif' => $rute === 'admin.kendaraan.index'])>Kendaraan</a>
             <a href="{{ route('areas.index') }}" @class(['aktif' => str_starts_with($rute, 'areas.')])>Area</a>
             <a href="{{ route('reports.occupancy') }}" @class(['aktif' => str_starts_with($rute, 'reports.')])>Laporan</a>
         @endcan
@@ -44,6 +66,7 @@
                 <button class="tombol tombol-kecil">Keluar</button>
             </form>
         @else
+            <a href="{{ route('register') }}" @class(['tombol', 'tombol-kecil', 'tombol-utama' => $rute === 'login'])>Daftar</a>
             <a href="{{ route('login') }}" @class(['tombol', 'tombol-kecil', 'tombol-utama' => $rute !== 'login'])>Masuk</a>
         @endauth
     </div>

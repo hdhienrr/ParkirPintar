@@ -28,7 +28,7 @@
             </div>
             <div class="denah-gulir">
                 <div id="denah" class="denah" aria-live="polite">
-                    <div class="denah-status">Isi jadwal di samping untuk melihat slot yang bebas.</div>
+                    <div class="denah-status">Pilih jenis kendaraan (Mobil atau Motor) di samping untuk melihat denah.</div>
                 </div>
             </div>
         </section>
@@ -49,14 +49,18 @@
                                 <label for="plat">Plat nomor</label>
                                 <input id="plat" name="plat" class="input-plat" maxlength="15" autocomplete="off" placeholder="B 1234 XY" value="{{ old('plat') }}" required>
                             </div>
-                            <div class="isian">
-                                <label for="jenis">Jenis kendaraan</label>
-                                <select id="jenis" name="jenis" required>
+                            {{-- Belum ada pilihan bawaan: denah baru dimuat setelah jenis dipilih. --}}
+                            <fieldset class="isian pilih-jenis">
+                                <legend>Jenis kendaraan</legend>
+                                <div class="pilih-jenis-opsi">
                                     @foreach ($jenisKendaraan as $j)
-                                        <option value="{{ $j->value }}" @selected(old('jenis') === $j->value)>{{ $j->label() }}</option>
+                                        <label>
+                                            <input type="radio" name="jenis" value="{{ $j->value }}" @checked(old('jenis') === $j->value) required>
+                                            <span>{{ $j->label() }}</span>
+                                        </label>
                                     @endforeach
-                                </select>
-                            </div>
+                                </div>
+                            </fieldset>
                         </div>
                     </div>
 
@@ -121,5 +125,5 @@
 
 @push('skrip')
     <script src="{{ asset('js/denah.js') }}?v=1" defer></script>
-    <script src="{{ asset('js/booking.js') }}?v=2" defer></script>
+    <script src="{{ asset('js/booking.js') }}?v=4" defer></script>
 @endpush

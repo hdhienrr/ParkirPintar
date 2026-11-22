@@ -119,10 +119,67 @@ h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -0.02em; }
 .nama-akun { max-width: 160px; overflow: hidden; color: var(--teks); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-kanan form { margin: 0; }
 
-/* Halaman masuk dan daftar */
+/* Kartu formulir kecil (dipakai halaman pindah booking) */
 .kartu-akun { max-width: 440px; }
 .kartu-akun-catatan { margin: 18px 0 0; color: var(--redup); font-size: 13px; }
 .kartu-akun-catatan a { color: var(--aksen); font-weight: 600; }
+
+/* Halaman masuk dan daftar: foto gedung di kiri, formulir di kanan */
+.akun { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: calc(100vh - 68px); }
+.akun-foto {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+    color: #fff;
+    background:
+        linear-gradient(180deg, rgba(20, 20, 19, 0.1) 30%, rgba(20, 20, 19, 0.78) 100%),
+        url('../images/hero-parkir.jpg') center 60% / cover no-repeat,
+        linear-gradient(160deg, #77756f 0%, #4c4b47 55%, #2a2a28 100%);
+}
+.akun-foto h2 { max-width: 420px; margin: 0 0 10px; font-size: 32px; line-height: 1.15; letter-spacing: -0.02em; }
+.akun-foto p { max-width: 420px; margin: 0; color: rgba(255, 255, 255, 0.82); line-height: 1.6; }
+.akun-chip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.akun-chip span { padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.16); font-size: 13px; font-variant-numeric: tabular-nums; }
+.akun-form { display: grid; place-items: center; padding: 48px 32px; background: var(--bg); }
+.akun-kotak { width: 100%; max-width: 400px; }
+.akun-judul { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+.akun-sub { margin: 0 0 24px; color: var(--redup); }
+.akun-catatan { margin: 18px 0 0; color: var(--redup); font-size: 13px; text-align: center; }
+.akun-catatan a { color: var(--aksen); font-weight: 600; }
+.isian-sandi { position: relative; }
+.isian-sandi input { width: 100%; padding-right: 44px; }
+/* Ikon mata bawaan Edge disembunyikan supaya tidak dobel dengan tombol mata kita. */
+.isian-sandi input::-ms-reveal,
+.isian-sandi input::-ms-clear { display: none; }
+.tombol-mata {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--samar);
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+.tombol-mata:hover,
+.tombol-mata:focus-visible { color: var(--aksen); background: var(--panel-2); }
+.tombol-mata .ikon-tutup,
+.tombol-mata[aria-pressed='true'] .ikon-buka { display: none; }
+.tombol-mata[aria-pressed='true'] .ikon-tutup { display: block; }
+
+@media (max-width: 900px) {
+    .akun { grid-template-columns: minmax(0, 1fr); }
+    .akun-foto { min-height: 220px; padding: 24px; }
+    .akun-foto h2 { font-size: 24px; }
+    .akun-form { padding: 32px 16px; }
+}
 
 /* ---------- Kerangka halaman ---------- */
 .konten { max-width: 1400px; margin: 0 auto; padding: 32px; }
@@ -286,7 +343,6 @@ tfoot td { border-top: 1px solid var(--garis); border-bottom: 0; font-weight: 70
     font-weight: 600;
     text-transform: capitalize;
 }
-.lencana::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .lencana-mobil { background: #fdf3e2; color: var(--kuning); }
 .lencana-motor { background: var(--biru-bg); color: var(--biru); }
 
@@ -468,6 +524,25 @@ tfoot td { border-top: 1px solid var(--garis); border-bottom: 0; font-weight: 70
 .info-tarif { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--garis); color: var(--redup); font-size: 12px; }
 
 /* ---------- Booking ---------- */
+/* Pilihan Mobil | Motor di formulir booking */
+.pilih-jenis { margin: 0; padding: 0; border: 0; }
+.pilih-jenis legend { margin-bottom: 6px; padding: 0; color: var(--teks); font-size: 13px; font-weight: 600; }
+.pilih-jenis-opsi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pilih-jenis-opsi label { position: relative; cursor: pointer; }
+.pilih-jenis-opsi input { position: absolute; opacity: 0; pointer-events: none; }
+.pilih-jenis-opsi span {
+    display: block;
+    padding: 10px 0;
+    border: 1px solid var(--garis-2);
+    border-radius: var(--radius-kecil);
+    background: var(--panel);
+    color: var(--redup);
+    font-weight: 600;
+    text-align: center;
+}
+.pilih-jenis-opsi label:hover span { border-color: var(--teks); }
+.pilih-jenis-opsi input:checked + span { border-color: var(--utama); background: var(--utama); color: #fff; }
+.pilih-jenis-opsi input:focus-visible + span { box-shadow: 0 0 0 3px var(--utama-muda); }
 .isian-ganda { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .info-tarif a { color: var(--aksen); font-weight: 600; }
 
@@ -788,6 +863,73 @@ tfoot tr + tr.baris-denda td { border-top: 0; }
 }
 .js-animasi [data-muncul].tampil { opacity: 1; transform: none; }
 
+/* ---------- Animasi pembuka beranda ---------- */
+/* Setiap kali beranda dibuka (baru, muat ulang, atau dari halaman lain): teks hero naik bergantian
+   dan foto muncul perlahan sambil sedikit menjauh (zoom-out halus). Tidak dipakai bila beranda dibuka lewat transisi dari halaman akun,
+   karena foto sudah digerakkan oleh transisi itu. */
+.beranda .hero-teks > * { animation: hero-naik 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.beranda .hero-teks > :nth-child(1) { animation-delay: 0.15s; }
+.beranda .hero-teks > :nth-child(2) { animation-delay: 0.25s; }
+.beranda .hero-teks > :nth-child(3) { animation-delay: 0.35s; }
+.beranda .hero-teks > :nth-child(4) { animation-delay: 0.45s; }
+.beranda .hero-foto { animation: foto-terbuka 1.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes hero-naik { from { opacity: 0; transform: translateY(24px); } }
+@keyframes foto-terbuka { from { opacity: 0; transform: scale(1.08); filter: blur(6px); } 60% { filter: blur(0); } }
+.lewat-transisi .beranda .hero-teks > *,
+.lewat-transisi .beranda .hero-foto { animation: none; }
+
+/* ---------- Transisi halaman: beranda <-> masuk/daftar ---------- */
+/* View Transitions bawaan browser (tanpa library). Foto hero di beranda dan foto di halaman akun
+   memakai nama yang sama, jadi browser menggeser foto dari kanan ke kiri dan menyesuaikan ukurannya.
+   Halaman tanpa foto (peraturan) tetap terasa sama: foto masuk dari sisi kanan lalu bergeser ke kiri.
+   Supaya tidak saling timpa, gerakannya bergantian:
+   - ke halaman akun : isi halaman asal memudar -> foto bergeser ke kiri -> formulir masuk dari kanan;
+   - kembali (back)  : formulir keluar ke kanan -> foto bergeser ke kanan -> isi halaman tujuan muncul.
+   Jenis transisi (ke-akun, dari-akun, antar-akun) dipasang oleh skrip pagereveal di layouts/app.
+   Browser yang belum mendukung tetap berpindah halaman seperti biasa. */
+@view-transition { navigation: auto; }
+
+.topbar { view-transition-name: topbar; }
+.hero-foto, .akun-foto { view-transition-name: foto-gedung; }
+.akun-form { view-transition-name: form-akun; }
+
+::view-transition-group(foto-gedung) { animation-duration: 0.55s; animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1); }
+::view-transition-old(foto-gedung),
+::view-transition-new(foto-gedung) { height: 100%; object-fit: cover; animation-duration: 0.3s; }
+::view-transition-group(form-akun) { animation-duration: 0.3s; }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.25s; }
+
+/* Ke halaman akun */
+html:active-view-transition-type(ke-akun)::view-transition-old(root) { animation: pudar-keluar 0.2s ease both; }
+html:active-view-transition-type(ke-akun)::view-transition-new(root) { animation: pudar-masuk 0.2s ease 0.15s both; }
+html:active-view-transition-type(ke-akun)::view-transition-group(foto-gedung) { animation-delay: 0.15s; }
+html:active-view-transition-type(ke-akun)::view-transition-new(form-akun) { animation: form-masuk 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) 0.55s both; }
+
+/* Keluar dari halaman akun (back) */
+html:active-view-transition-type(dari-akun)::view-transition-old(form-akun) { animation: form-keluar 0.3s ease both; }
+html:active-view-transition-type(dari-akun)::view-transition-old(root) { animation: pudar-keluar 0.2s ease both; }
+html:active-view-transition-type(dari-akun)::view-transition-group(foto-gedung) { animation-delay: 0.3s; }
+html:active-view-transition-type(dari-akun)::view-transition-new(root) { animation: pudar-masuk 0.3s ease 0.8s both; }
+
+/* Asal atau tujuan tanpa foto (peraturan): foto datang dari setengah kanan, atau pergi ke sana lalu memudar. */
+html:active-view-transition-type(ke-akun)::view-transition-new(foto-gedung):only-child { animation: foto-dari-kanan 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s both; }
+html:active-view-transition-type(dari-akun)::view-transition-old(foto-gedung):only-child { animation: foto-ke-kanan 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s both; }
+@keyframes foto-dari-kanan { from { transform: translateX(100%); } }
+@keyframes foto-ke-kanan { 70% { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
+
+@keyframes form-masuk { from { opacity: 0; transform: translateX(80px); } }
+@keyframes form-keluar { to { opacity: 0; transform: translateX(80px); } }
+@keyframes pudar-masuk { from { opacity: 0; } }
+@keyframes pudar-keluar { to { opacity: 0; } }
+
+/* Datang lewat transisi halaman: navbar tidak perlu meluncur lagi. */
+.lewat-transisi .beranda .topbar { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+}
+
 /* ---------- Animasi navbar ---------- */
 .topbar { transition: height 0.25s ease, box-shadow 0.25s ease, background 0.25s ease; }
 /* Setelah digulir: sedikit lebih pendek dan berbayang. */
@@ -824,5 +966,7 @@ tfoot tr + tr.baris-denda td { border-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
     .topbar, .nav a, .nav a::after, .brand-logo { transition: none; }
-    .beranda .topbar { animation: none; }
+    .beranda .topbar,
+    .beranda .hero-teks > *,
+    .beranda .hero-foto { animation: none; }
 }

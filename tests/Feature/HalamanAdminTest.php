@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\SlotParkir;
 use App\Models\User;
 use App\Services\LayananKarcis;
+use App\Services\LayananParkir;
 use Carbon\CarbonImmutable;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -70,7 +71,7 @@ class HalamanAdminTest extends TestCase
         $this->travelTo(CarbonImmutable::parse('2026-11-23 09:20'));
 
         $this->get('/admin/booking')->assertSee('Melewati waktu');
-        $this->get('/admin/kendaraan')->assertSee('Melewati waktu');
+        $this->get('/admin/booking/sedang-parkir')->assertSee('Melewati waktu');
     }
 
     public function test_booking_yang_belum_melewati_waktu_tanpa_label_merah(): void
@@ -88,7 +89,7 @@ class HalamanAdminTest extends TestCase
 
         $this->travelTo(CarbonImmutable::parse('2026-11-23 09:30'));
 
-        $this->get('/admin/kendaraan')
+        $this->get('/admin/booking/sedang-parkir')
             ->assertOk()
             ->assertSee($kendaraan->nomor_karcis)
             ->assertSee($kendaraan->plat)
@@ -101,7 +102,37 @@ class HalamanAdminTest extends TestCase
         $kendaraan = app(LayananKarcis::class)->checkIn($booking->kode_booking)->kendaraan;
         app(LayananKarcis::class)->checkOut($kendaraan->id);
 
-        $this->get('/admin/kendaraan')->assertDontSee($kendaraan->nomor_karcis);
+        $this->get('/admin/booking/sedang-parkir')->assertDontSee($kendaraan->nomor_karcis);
+    }
+
+    public function test_tab_sedang_parkir_memuat_kendaraan_dari_booking_hari_sebelumnya(): void
+    {
+        // Masuk kemarin dan belum keluar: tidak ada di daftar per tanggal hari ini, tetapi ada di tab sedang parkir.
+        $this->travelTo(CarbonImmutable::parse('2026-11-22 20:00'));
+        $kemarin = $this->booking('A1-01', '2026-11-22 20:00', 1);
+        $karcis = app(LayananKarcis::class)->checkIn($kemarin->kode_booking)->kendaraan->nomor_karcis;
+
+        $this->travelTo(CarbonImmutable::parse('2026-11-23 08:00'));
+
+        $this->get('/admin/booking')->assertDontSee($kemarin->kode_booking);
+        $this->get('/admin/booking/sedang-parkir')
+            ->assertSee($kemarin->kode_booking)
+            ->assertSee($karcis)
+            ->assertSee('Melewati waktu');
+    }
+
+    public function test_tab_sedang_parkir_memuat_kendaraan_tanpa_booking(): void
+    {
+        app(LayananParkir::class)->checkIn(SlotParkir::where('kode_slot', 'A1-09')->value('id'), 'B 9 TB', 'mobil');
+
+        $this->get('/admin/booking/sedang-parkir')
+            ->assertSee('B9TB')
+            ->assertSee('tanpa booking');
+    }
+
+    public function test_halaman_kendaraan_terpisah_sudah_tidak_ada(): void
+    {
+        $this->get('/admin/kendaraan')->assertNotFound();
     }
 
     public function test_user_tidak_bisa_membuka_halaman_admin_booking_dan_kendaraan(): void
@@ -109,6 +140,6 @@ class HalamanAdminTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         $this->get('/admin/booking')->assertForbidden();
-        $this->get('/admin/kendaraan')->assertForbidden();
+        $this->get('/admin/booking/sedang-parkir')->assertForbidden();
     }
 }

@@ -3,22 +3,26 @@
 @use('App\Support\Format')
 
 @section('label', 'Admin')
-@section('judul', 'Kendaraan sedang parkir')
+@section('judul', 'Semua booking')
+
+@section('aksi-judul')
+    @include('admin._tab-booking')
+@endsection
 
 @section('isi')
     @include('partials.pesan')
 
     <section class="panel">
         <div class="panel-kepala">
-            <h2>{{ $daftar->count() }} kendaraan di dalam</h2>
-            <span class="label" style="margin:0">Biaya dihitung bila keluar sekarang</span>
+            <h2>{{ $daftar->count() }} kendaraan sedang parkir</h2>
+            <span class="label" style="margin:0">Dari tanggal mana pun · biaya bila keluar sekarang</span>
         </div>
 
         <div class="tabel-bungkus">
             <table>
                 <thead>
                 <tr>
-                    <th>Karcis</th>
+                    <th>Kode booking</th>
                     <th>Plat</th>
                     <th>Slot</th>
                     <th>Masuk</th>
@@ -33,8 +37,8 @@
                     @php($k = $baris['kendaraan'])
                     <tr @class(['baris-merah' => $baris['melewati_waktu']])>
                         <td>
-                            @if ($k->nomor_karcis)
-                                <a href="{{ route('karcis.show', $k) }}" class="mono">{{ $k->nomor_karcis }}</a>
+                            @if ($k->booking)
+                                <a href="{{ route('booking.show', $k->booking) }}" class="mono">{{ $k->booking->kode_booking }}</a>
                             @else
                                 <span class="redup">tanpa booking</span>
                             @endif
@@ -51,14 +55,13 @@
                         <td class="kanan angka">{{ $baris['perkiraan'] ? Format::durasi($baris['perkiraan']['durasi_menit']) : '-' }}</td>
                         <td class="kanan angka">{{ Format::rupiah($baris['perkiraan']['biaya'] ?? null) }}</td>
                         <td class="kanan">
-                            <form method="POST" action="{{ route('checkout', $k->id) }}" onsubmit="return confirm('Check-out {{ $k->plat }}?')">
-                                @csrf
-                                <button class="tombol tombol-kecil tombol-gelap">Check-out</button>
-                            </form>
+                            @if ($k->nomor_karcis)
+                                <a href="{{ route('karcis.show', $k) }}" class="tombol tombol-kecil">Karcis</a>
+                            @endif
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="kosong-data">Tidak ada kendaraan di dalam.</td></tr>
+                    <tr><td colspan="8" class="kosong-data">Tidak ada kendaraan yang sedang parkir.</td></tr>
                 @endforelse
                 </tbody>
             </table>

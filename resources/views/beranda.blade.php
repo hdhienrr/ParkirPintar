@@ -107,7 +107,9 @@
 
 @push('skrip')
     <script>
-        // Animasi scroll: elemen [data-muncul] memudar dan naik sedikit saat masuk layar.
+        // Animasi scroll: saat scroll turun, elemen [data-muncul] memudar dan naik masuk dari bawah.
+        // Saat scroll naik, kebalikannya: elemen yang turun keluar lewat bawah layar memudar dan turun lagi.
+        // Elemen yang sudah lewat ke atas layar tetap tampil, jadi tidak ikut beranimasi saat scroll naik.
         (function () {
             if (!document.documentElement.classList.contains('js-animasi')) return;
 
@@ -121,11 +123,14 @@
 
             const pengamat = new IntersectionObserver((entri) => {
                 entri.forEach((e) => {
-                    if (!e.isIntersecting) return;
-                    e.target.classList.add('tampil');
-                    pengamat.unobserve(e.target);
+                    const diBawahLayar = e.boundingClientRect.top > e.rootBounds.height / 2;
+                    if (e.intersectionRatio >= 0.15) {
+                        e.target.classList.add('tampil');
+                    } else if (diBawahLayar) {
+                        e.target.classList.remove('tampil');
+                    }
                 });
-            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+            }, { threshold: [0, 0.15] });
 
             elemen.forEach((el) => pengamat.observe(el));
         })();
