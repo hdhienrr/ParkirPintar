@@ -1,0 +1,74 @@
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'parkirpintar'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Mengambil source code dari GitHub'
+                checkout scm
+            }
+        }
+
+        stage('Code Validation') {
+            steps {
+                echo 'Memvalidasi struktur proyek'
+
+                bat 'if not exist Dockerfile exit /b 1'
+                bat 'dir'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker Image'
+
+                bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% .'
+            }
+        }
+
+        stage('Testing') {
+            steps {
+                echo 'Memeriksa hasil Docker Build'
+
+                bat 'docker image inspect %IMAGE_NAME%:%IMAGE_TAG%'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Menyiapkan deployment ParkirPintar'
+
+                // Perintah deploy
+            }
+        }
+
+        stage('Post Deployment Verification') {
+            steps {
+                echo 'Memverifikasi aplikasi'
+                
+                // Health check
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'ParkirPintar CI/CD berhasil!'
+        }
+
+        failure {
+            echo 'ParkirPintar CI/CD mengalami kegagalan!'
+        }
+
+        always {
+            echo 'Pipeline execution selesai.'
+        }
+    }
+}
